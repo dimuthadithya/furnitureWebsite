@@ -95,7 +95,10 @@ $categories = getAllCategories();
                 <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
                 <td>
                   <button class="btn btn-sm btn-primary edit-product"
-                    data-product-id="<?php echo htmlspecialchars($product['product_id']); ?>">
+                    data-product-id="<?php echo htmlspecialchars($product['product_id']); ?>"
+                    data-description="<?php echo htmlspecialchars($product['description'] ?? ''); ?>"
+                    data-category-id="<?php echo htmlspecialchars($product['category_id']); ?>"
+                    data-image-url="<?php echo htmlspecialchars($product['image_url'] ?? ''); ?>">
                     <i class="fas fa-edit"></i>
                   </button>
                   <button class="btn btn-sm btn-danger delete-product"
@@ -170,6 +173,91 @@ $categories = getAllCategories();
             </div>
           </div>
         </div>
+      </div> <!-- Edit Product Modal -->
+      <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Edit Product</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="editProductForm" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" id="editProductId" name="product_id">
+
+                <div class="mb-3">
+                  <label for="editProductName" class="form-label">Product Name</label>
+                  <input type="text" class="form-control" id="editProductName" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editProductDescription" class="form-label">Description</label>
+                  <textarea class="form-control" id="editProductDescription" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editProductPrice" class="form-label">Price</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="editProductPrice" name="price" step="0.01" min="0" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editProductCategory" class="form-label">Category</label>
+                  <select class="form-select" id="editProductCategory" name="category_id" required>
+                    <option value="">Select a category</option>
+                    <?php foreach ($categories as $category): ?>
+                      <option value="<?php echo htmlspecialchars($category['category_id']); ?>">
+                        <?php echo htmlspecialchars($category['name']); ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="editProductStock" class="form-label">Stock Quantity</label>
+                  <input type="number" class="form-control" id="editProductStock" name="stock_quantity" min="0" required>
+                </div>
+
+                <div id="currentImagePreview" class="mb-3 d-none">
+                  <label class="form-label">Current Image</label>
+                  <img src="" alt="Current product image" style="max-width: 100px; display: block;">
+                </div>
+
+                <div class="mb-3">
+                  <label for="editProductImage" class="form-label">New Image (optional)</label>
+                  <input type="file" class="form-control" id="editProductImage" name="image" accept="image/*">
+                </div>
+
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Update Product</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Delete Confirmation Modal -->
+      <div class="modal fade" id="deleteProductModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Delete Product</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete "<span id="deleteProductName"></span>"?</p>
+              <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-danger" id="confirmDeleteProduct">Delete</button>
+            </div>
+          </div>
+        </div>
       </div>
 
     </main>
@@ -206,6 +294,97 @@ $categories = getAllCategories();
             alert('An error occurred while adding the product.');
           }
         });
+      }); // Handle edit button click
+      $('.edit-product').click(function() {
+        const button = $(this);
+        const row = button.closest('tr');
+
+        // Populate form fields
+        $('#editProductId').val(button.data('product-id'));
+        $('#editProductName').val(button.data('name'));
+        $('#editProductDescription').val(button.data('description'));
+        $('#editProductPrice').val(parseFloat(row.find('td:eq(4)').text().replace('$', '').trim()));
+        $('#editProductCategory').val(button.data('category-id'));
+        $('#editProductStock').val(row.find('td:eq(5)').text().trim());
+
+        // Handle image preview
+        const imgUrl = button.data('image-url');
+        if (imgUrl) {
+          $('#currentImagePreview')
+            .removeClass('d-none')
+            .find('img')
+            .attr('src', '../' + imgUrl);
+        } else {
+          $('#currentImagePreview').addClass('d-none');
+        }
+
+        // Clear file input
+        $('#editProductImage').val('');
+
+        $('#editProductModal').modal('show');
+      });
+
+      // Handle edit form submission
+      $('#editProductForm').submit(function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+          url: 'handlers/product_handler.php',
+          method: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              location.reload();
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function() {
+            alert('An error occurred while updating the product.');
+          }
+        });
+      });
+
+      // Handle delete button click
+      $('.delete-product').click(function() {
+        const productId = $(this).data('product-id');
+        const productName = $(this).data('product-name');
+
+        $('#deleteProductName').text(productName);
+        $('#confirmDeleteProduct').data('product-id', productId);
+        $('#deleteProductModal').modal('show');
+      });
+
+      // Handle delete confirmation
+      $('#confirmDeleteProduct').click(function() {
+        const productId = $(this).data('product-id');
+
+        $.ajax({
+          url: 'handlers/product_handler.php',
+          method: 'POST',
+          data: {
+            action: 'delete',
+            product_id: productId
+          },
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              location.reload();
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function() {
+            alert('An error occurred while deleting the product.');
+          }
+        });
+
+        $('#deleteProductModal').modal('hide');
       });
     });
   </script>

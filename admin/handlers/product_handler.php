@@ -80,6 +80,78 @@ function handleImageUpload($file)
     ];
 }
 
+// Update product function
+function updateProduct($product_id, $name, $description, $price, $category_id, $stock_quantity, $image_url = null)
+{
+    // Get old product data before update
+    $old_product = null;
+    $old_image_path = null;
+    if ($image_url !== null) {
+        $old_product = getProductById($product_id);
+        if ($old_product && $old_product['image_url']) {
+            $old_image_path = dirname(dirname(__DIR__)) . '/' . $old_product['image_url'];
+        }
+    }
+
+    // Prepare update query
+    if ($image_url === null) {
+        $sql = "UPDATE products SET name = ?, description = ?, price = ?, category_id = ?, stock_quantity = ? WHERE product_id = ?";
+        $params = [$name, $description, $price, $category_id, $stock_quantity, $product_id];
+    } else {
+        $sql = "UPDATE products SET name = ?, description = ?, price = ?, category_id = ?, stock_quantity = ?, image_url = ? WHERE product_id = ?";
+        $params = [$name, $description, $price, $category_id, $stock_quantity, $image_url, $product_id];
+    }
+
+    // Execute update
+    $result = execute($sql, $params);
+
+    if ($result) {
+        // If update successful and we have a new image, delete old image
+        if ($old_image_path && file_exists($old_image_path)) {
+            unlink($old_image_path);
+        }
+
+        return [
+            'status' => 'success',
+            'message' => 'Product updated successfully'
+        ];
+    }
+    return [
+        'status' => 'error',
+        'message' => 'Failed to update product'
+    ];
+}
+
+// Delete product function
+function deleteProduct($product_id)
+{
+    // Get product info to delete image file
+    $product = getProductById($product_id);
+
+    // Delete from database
+    $sql = "DELETE FROM products WHERE product_id = ?";
+    $result = execute($sql, [$product_id]);
+
+    if ($result) {
+        // Delete image file if exists
+        if ($product && $product['image_url']) {
+            $image_path = dirname(dirname(__DIR__)) . '/' . $product['image_url'];
+            if (file_exists($image_path)) {
+                unlink($image_path);
+            }
+        }
+
+        return [
+            'status' => 'success',
+            'message' => 'Product deleted successfully'
+        ];
+    }
+    return [
+        'status' => 'error',
+        'message' => 'Failed to delete product'
+    ];
+}
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -118,6 +190,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $image_path
         );
 
+        echo json_encode($result);
+        exit;
+    } elseif ($action === 'edit') {
+        // Validate required fields
+        $required_fields = ['product_id', 'name', 'price', 'category_id', 'stock_quantity'];
+        foreach ($required_fields as $field) {
+            if (empty($_POST[$field])) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => ucfirst(str_replace('_', ' ', $field)) . ' is required'
+                ]);
+                exit;
+            }
+        }
+
+        // Handle image upload if provided
+        $image_path = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = handleImageUpload($_FILES['image']);
+            if ($upload_result['status'] === 'error') {
+                echo json_encode($upload_result);
+                exit;
+            }
+            $image_path = $upload_result['path'];
+        }
+
+        // Update product
+        $result = updateProduct(
+            $_POST['product_id'],
+            $_POST['name'],
+            $_POST['description'] ?? '',
+            (float)$_POST['price'],
+            (int)$_POST['category_id'],
+            (int)$_POST['stock_quantity'],
+            $image_path
+        );
+
+        echo json_encode($result);
+        exit;
+    } elseif ($action === 'delete') {
+        if (empty($_POST['product_id'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Product ID is required'
+            ]);
+            exit;
+        }
+
+        // Delete product
+        $result = deleteProduct($_POST['product_id']);
         echo json_encode($result);
         exit;
     }
