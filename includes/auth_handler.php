@@ -20,8 +20,7 @@ function registerUser($username, $email, $password)
         // Hash password
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert new user
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, is_admin) VALUES (?, ?, ?, false)");
+        // Insert new user        $stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, is_admin) VALUES (?, ?, ?, 0)");
         $stmt->execute([$username, $email, $password_hash]);
 
         return [
@@ -51,18 +50,17 @@ function loginUser($email, $password)
                 'status' => 'error',
                 'message' => 'Invalid email or password'
             ];
-        }
-
-        // Set session variables
+        }        // Set session variables
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['is_admin'] = $user['is_admin'];
+        // Convert is_admin to boolean explicitly
+        $_SESSION['is_admin'] = (bool)$user['is_admin'];
 
         return [
             'status' => 'success',
             'message' => 'Login successful',
-            'is_admin' => $user['is_admin']
+            'is_admin' => (bool)$user['is_admin']
         ];
     } catch (PDOException $e) {
         return [
