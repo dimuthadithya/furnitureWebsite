@@ -29,10 +29,9 @@ try {
         LIMIT 5
     ");
   $recentOrders = $stmt->fetchAll();
-
   // Low Stock Products (less than 5 items)
   $stmt = $conn->query("
-        SELECT product_id, product_name, stock_quantity 
+        SELECT product_id, name, stock_quantity 
         FROM products 
         WHERE stock_quantity < 5 
         ORDER BY stock_quantity ASC 
@@ -42,7 +41,7 @@ try {
 
   // Recent Reviews
   $stmt = $conn->query("
-        SELECT r.*, u.username, p.product_name 
+        SELECT r.*, u.username, p.name as product_name 
         FROM reviews r 
         LEFT JOIN users u ON r.user_id = u.user_id 
         LEFT JOIN products p ON r.product_id = p.product_id 

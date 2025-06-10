@@ -200,8 +200,10 @@
                 <span>Total</span>
                 <span>$<?php echo number_format($subtotal + 10, 2); ?></span>
               </div>
-              <form action="checkout.php" method="POST">
-                <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+              <form action="checkout.php" method="GET">
+                <button type="submit" class="btn btn-primary w-100 proceed-to-checkout">
+                  Proceed to Checkout
+                </button>
               </form>
             </div>
           </div>

@@ -82,6 +82,43 @@ INSERT INTO categories (name, description) VALUES
 ('Dining Room', 'Dining tables and chairs'),
 ('Office', 'Office furniture and workstations');
 
+-- Shipping addresses table
+CREATE TABLE shipping_addresses (
+    address_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    full_name VARCHAR(100) NOT NULL,
+    address_line1 VARCHAR(100) NOT NULL,
+    address_line2 VARCHAR(100),
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    country VARCHAR(50) NOT NULL DEFAULT 'India',
+    phone VARCHAR(20) NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Payment information table (encrypted sensitive data)
+CREATE TABLE payment_methods (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    card_holder_name VARCHAR(100) NOT NULL,
+    card_number_encrypted VARCHAR(255) NOT NULL,
+    expiry_month INT NOT NULL,
+    expiry_year INT NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Add payment_method_id and address_id to orders table
+ALTER TABLE orders 
+ADD COLUMN payment_method_id INT,
+ADD COLUMN shipping_address_id INT,
+ADD FOREIGN KEY (payment_method_id) REFERENCES payment_methods(payment_id),
+ADD FOREIGN KEY (shipping_address_id) REFERENCES shipping_addresses(address_id);
+
 -- Insert sample admin user (password: admin123)
 INSERT INTO users (username, email, password_hash, is_admin) VALUES
 ('admin', 'admin@furniture.com', '$2y$10$XoiVQUUkG5HY1iB4MxJZwObCE4Q7ANhX1RXpY1eY0Y8f8Z2Y7q5wG', TRUE);
