@@ -63,7 +63,6 @@ require_once 'includes/auth_check.php';
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Icon</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Products Count</th>
@@ -74,7 +73,6 @@ require_once 'includes/auth_check.php';
             <tbody>
               <tr>
                 <td>#C001</td>
-                <td><i class="fas fa-couch"></i></td>
                 <td>Living Room</td>
                 <td>Furniture for living rooms and lounges</td>
                 <td><span class="badge bg-primary">15 Products</span></td>
@@ -93,7 +91,6 @@ require_once 'includes/auth_check.php';
               </tr>
               <tr>
                 <td>#C002</td>
-                <td><i class="fas fa-bed"></i></td>
                 <td>Bedroom</td>
                 <td>Beds and bedroom furniture sets</td>
                 <td><span class="badge bg-primary">12 Products</span></td>
@@ -112,7 +109,6 @@ require_once 'includes/auth_check.php';
               </tr>
               <tr>
                 <td>#C003</td>
-                <td><i class="fas fa-utensils"></i></td>
                 <td>Dining Room</td>
                 <td>Dining tables and chairs</td>
                 <td><span class="badge bg-primary">8 Products</span></td>
@@ -131,7 +127,6 @@ require_once 'includes/auth_check.php';
               </tr>
               <tr>
                 <td>#C004</td>
-                <td><i class="fas fa-briefcase"></i></td>
                 <td>Office</td>
                 <td>Office furniture and workstations</td>
                 <td><span class="badge bg-primary">10 Products</span></td>
@@ -171,18 +166,6 @@ require_once 'includes/auth_check.php';
             <div class="admin-form-group">
               <label class="admin-form-label">Category Name</label>
               <input type="text" class="admin-form-control" required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Icon Class</label>
-              <div class="input-group">
-                <span class="input-group-text">fa-</span>
-                <input
-                  type="text"
-                  class="admin-form-control"
-                  placeholder="e.g. couch, bed, chair"
-                  required />
-              </div>
-              <small class="text-muted">Enter Font Awesome icon name without 'fa-' prefix</small>
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Description</label>
@@ -235,18 +218,6 @@ require_once 'includes/auth_check.php';
                 class="admin-form-control"
                 value="Living Room"
                 required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Icon Class</label>
-              <div class="input-group">
-                <span class="input-group-text">fa-</span>
-                <input
-                  type="text"
-                  class="admin-form-control"
-                  value="couch"
-                  required />
-              </div>
-              <small class="text-muted">Enter Font Awesome icon name without 'fa-' prefix</small>
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Description</label>
