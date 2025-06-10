@@ -40,92 +40,92 @@
   <link rel="stylesheet" href="assets/css/cart.css" />
 </head>
 
-<body>  <?php
-  require_once 'config/connection.php';
-  if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-  }
+<body> <?php
+        require_once 'config/connection.php';
+        if (session_status() === PHP_SESSION_NONE) {
+          session_start();
+        }
 
-  // Check if user is logged in
-  if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
-    exit();
-  }
+        // Check if user is logged in
+        if (!isset($_SESSION['user_id'])) {
+          header('Location: login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+          exit();
+        }
 
-  $user_id = $_SESSION['user_id'];
-  $message = '';
+        $user_id = $_SESSION['user_id'];
+        $message = '';
 
-  // Handle cart actions
-  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $product_id = $_POST['product_id'] ?? '';
-    $quantity = $_POST['quantity'] ?? 1;
+        // Handle cart actions
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+          $action = $_POST['action'] ?? '';
+          $product_id = $_POST['product_id'] ?? '';
+          $quantity = $_POST['quantity'] ?? 1;
 
-    switch ($action) {
-      case 'add':
-        try {
-          // Check if product already in cart
-          $stmt = $conn->prepare("SELECT cart_id, quantity FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
-          $stmt->execute([':user_id' => $user_id, ':product_id' => $product_id]);
-          $cart_item = $stmt->fetch();
+          switch ($action) {
+            case 'add':
+              try {
+                // Check if product already in cart
+                $stmt = $conn->prepare("SELECT cart_id, quantity FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
+                $stmt->execute([':user_id' => $user_id, ':product_id' => $product_id]);
+                $cart_item = $stmt->fetch();
 
-          if ($cart_item) {
-            // Update quantity
-            $new_quantity = $cart_item['quantity'] + $quantity;
-            $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id");
-            $stmt->execute([':quantity' => $new_quantity, ':cart_id' => $cart_item['cart_id']]);
-          } else {
-            // Insert new item
-            $stmt = $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
-            $stmt->execute([':user_id' => $user_id, ':product_id' => $product_id, ':quantity' => $quantity]);
+                if ($cart_item) {
+                  // Update quantity
+                  $new_quantity = $cart_item['quantity'] + $quantity;
+                  $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id");
+                  $stmt->execute([':quantity' => $new_quantity, ':cart_id' => $cart_item['cart_id']]);
+                } else {
+                  // Insert new item
+                  $stmt = $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
+                  $stmt->execute([':user_id' => $user_id, ':product_id' => $product_id, ':quantity' => $quantity]);
+                }
+                $message = 'Product added to cart successfully!';
+              } catch (PDOException $e) {
+                $message = 'Error adding product to cart: ' . $e->getMessage();
+              }
+              break;
+
+            case 'update':
+              try {
+                $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id AND user_id = :user_id");
+                $stmt->execute([
+                  ':quantity' => $quantity,
+                  ':cart_id' => $_POST['cart_id'],
+                  ':user_id' => $user_id
+                ]);
+              } catch (PDOException $e) {
+                $message = 'Error updating cart: ' . $e->getMessage();
+              }
+              break;
+
+            case 'remove':
+              try {
+                $stmt = $conn->prepare("DELETE FROM cart_items WHERE cart_id = :cart_id AND user_id = :user_id");
+                $stmt->execute([':cart_id' => $_POST['cart_id'], ':user_id' => $user_id]);
+              } catch (PDOException $e) {
+                $message = 'Error removing item: ' . $e->getMessage();
+              }
+              break;
           }
-          $message = 'Product added to cart successfully!';
-        } catch (PDOException $e) {
-          $message = 'Error adding product to cart: ' . $e->getMessage();
         }
-        break;
 
-      case 'update':
+        // Get cart items
         try {
-          $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id AND user_id = :user_id");
-          $stmt->execute([
-            ':quantity' => $quantity,
-            ':cart_id' => $_POST['cart_id'],
-            ':user_id' => $user_id
-          ]);
-        } catch (PDOException $e) {
-          $message = 'Error updating cart: ' . $e->getMessage();
-        }
-        break;
-
-      case 'remove':
-        try {
-          $stmt = $conn->prepare("DELETE FROM cart_items WHERE cart_id = :cart_id AND user_id = :user_id");
-          $stmt->execute([':cart_id' => $_POST['cart_id'], ':user_id' => $user_id]);
-        } catch (PDOException $e) {
-          $message = 'Error removing item: ' . $e->getMessage();
-        }
-        break;
-    }
-  }
-
-  // Get cart items
-  try {
-    $stmt = $conn->prepare("
+          $stmt = $conn->prepare("
         SELECT c.cart_id, c.quantity, p.product_id, p.name, p.price, p.image_url, p.stock_quantity
         FROM cart_items c
         JOIN products p ON c.product_id = p.product_id
         WHERE c.user_id = :user_id
     ");
-    $stmt->execute([':user_id' => $user_id]);
-    $cart_items = $stmt->fetchAll();
-  } catch (PDOException $e) {
-    $message = 'Error fetching cart items: ' . $e->getMessage();
-    $cart_items = [];
-  }
+          $stmt->execute([':user_id' => $user_id]);
+          $cart_items = $stmt->fetchAll();
+        } catch (PDOException $e) {
+          $message = 'Error fetching cart items: ' . $e->getMessage();
+          $cart_items = [];
+        }
 
-  include 'includes/nav.php';
-  ?>
+        include 'includes/nav.php';
+        ?>
 
   <!-- Cart Section -->
   <section class="cart-page">
