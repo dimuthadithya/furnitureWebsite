@@ -1,3 +1,6 @@
+<?php
+require_once 'includes/auth_check.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,9 +50,6 @@
         <h1 class="h3 m-0">Dashboard</h1>
         <div class="admin-header-right">
           <span class="me-3">Welcome, Admin</span>
-          <a href="#" class="admin-btn admin-btn-danger btn-sm">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </a>
         </div>
       </header>
 
