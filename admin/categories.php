@@ -46,48 +46,7 @@ $categories = getAllCategories();
 <body>
   <div class="admin-wrapper">
     <!-- Sidebar -->
-    <nav class="admin-sidebar">
-      <a class="navbar-brand" href="index.html">
-        <i class="fas fa-chair"></i> Admin
-      </a>
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a class="nav-link" href="index.html">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="products.html">
-            <i class="fas fa-box"></i> Products
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="categories.html">
-            <i class="fas fa-tags"></i> Categories
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="orders.html">
-            <i class="fas fa-shopping-cart"></i> Orders
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="users.html">
-            <i class="fas fa-users"></i> Users
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="reviews.html">
-            <i class="fas fa-star"></i> Reviews
-          </a>
-        </li>
-        <li class="nav-item mt-4">
-          <a class="nav-link" href="../index.html">
-            <i class="fas fa-sign-out-alt"></i> Exit Admin
-          </a>
-        </li>
-      </ul>
-    </nav>
+    <?php include '../includes/admin-sidebar.php'; ?>
 
     <!-- Main Content -->
     <main class="admin-main">
