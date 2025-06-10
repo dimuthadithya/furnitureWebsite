@@ -10,6 +10,10 @@
     --admin-dark: #333333;
 }
 
+a{
+    text-decoration: none;
+}
+
 /* Admin Layout */
 .admin-wrapper {
     display: flex;
@@ -164,11 +168,11 @@
 
 /* Buttons */
 .admin-btn {
-    padding: 0.5rem 1rem;
     border-radius: 0.25rem;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    padding: 10px;
 }
 
 .admin-btn-primary {
