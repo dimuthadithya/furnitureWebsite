@@ -99,7 +99,7 @@ function logoutUser()
     session_destroy();
 
     // Determine the correct path to login page
-    $loginPath = strpos($_SERVER['REQUEST_URI'], '/admin/') !== false ? '../login.php' : 'login.php';
+    $loginPath = strpos($_SERVER['REQUEST_URI'], '/admin/') !== false ? '../login.php' : '../login.php';
 
     // Redirect to login page
     header('Location: ' . $loginPath);
