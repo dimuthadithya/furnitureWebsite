@@ -157,38 +157,6 @@ try {
                     </form>
                 <?php else: ?>
                     <button class="btn-out-of-stock w-100" disabled>Out of Stock</button>
-                <?php endif; ?> <div class="product-price mb-4">$<?php echo number_format($product['price'], 2); ?></div>
-
-                <div class="product-description mb-4">
-                    <?php echo nl2br(htmlspecialchars($product['description'])); ?>
-                </div>
-
-                <div class="product-meta mb-4">
-                    <div class="meta-item">
-                        <span class="meta-label">Category:</span>
-                        <span class="meta-value"><?php echo htmlspecialchars($product['category_name']); ?></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Availability:</span>
-                        <span class="meta-value <?php echo $product['stock_quantity'] > 0 ? 'text-success' : 'text-danger'; ?>">
-                            <?php echo $product['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?>
-                        </span>
-                    </div>
-                </div>
-
-                <?php if ($product['stock_quantity'] > 0): ?>
-                    <form action="cart.php" method="POST" class="d-flex gap-3 mb-4">
-                        <input type="hidden" name="action" value="add">
-                        <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
-                        <div class="quantity-input">
-                            <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
-                            <input type="number" name="quantity" value="1" min="1"
-                                max="<?php echo $product['stock_quantity']; ?>"
-                                class="quantity-value">
-                            <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
-                        </div>
-                        <button type="submit" class="btn-add-cart flex-grow-1">Add to Cart</button>
-                    </form>
                 <?php endif; ?>
             </div>
         </div>

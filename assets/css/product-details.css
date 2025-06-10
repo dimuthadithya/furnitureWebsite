@@ -72,6 +72,79 @@
     max-width: 100px;
 }
 
+.quantity-input {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 4px;
+    width: fit-content;
+}
+
+.quantity-btn {
+    background-color: #f8f9fa;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #212529;
+    transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+    background-color: #e9ecef;
+}
+
+.quantity-value {
+    width: 50px;
+    text-align: center;
+    border: none;
+    font-size: 16px;
+    color: #212529;
+    padding: 0 8px;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.quantity-value::-webkit-outer-spin-button,
+.quantity-value::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.btn-add-cart {
+    background-color: #212529;
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-add-cart:hover {
+    background-color: #000;
+}
+
+.btn-out-of-stock {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: not-allowed;
+}
+
 /* Review Section Styles */
 .review-card {
     background-color: #fff;
