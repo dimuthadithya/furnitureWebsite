@@ -1,8 +1,8 @@
 <?php
 require_once '../config/db.php';
-require_once './handlers/category_handler.php';
+require_once 'handlers/category_handler.php';
 
-// Get all categories
+// Fetch all categories
 $categories = getAllCategories();
 ?>
 <!DOCTYPE html>
@@ -45,7 +45,49 @@ $categories = getAllCategories();
 
 <body>
   <div class="admin-wrapper">
-    <?php include '../includes/admin-sidebar.php'; ?>
+    <!-- Sidebar -->
+    <nav class="admin-sidebar">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-chair"></i> Admin
+      </a>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="products.html">
+            <i class="fas fa-box"></i> Products
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="categories.html">
+            <i class="fas fa-tags"></i> Categories
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="orders.html">
+            <i class="fas fa-shopping-cart"></i> Orders
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="users.html">
+            <i class="fas fa-users"></i> Users
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="reviews.html">
+            <i class="fas fa-star"></i> Reviews
+          </a>
+        </li>
+        <li class="nav-item mt-4">
+          <a class="nav-link" href="../index.html">
+            <i class="fas fa-sign-out-alt"></i> Exit Admin
+          </a>
+        </li>
+      </ul>
+    </nav>
 
     <!-- Main Content -->
     <main class="admin-main">
@@ -75,29 +117,29 @@ $categories = getAllCategories();
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($categories as $category): ?>
+              <?php if (empty($categories)): ?>
                 <tr>
-                  <td>#C<?php echo str_pad($category['category_id'], 3, '0', STR_PAD_LEFT); ?></td>
-                  <td><i class="<?php echo htmlspecialchars($category['icon_class']); ?>"></i></td>
-                  <td><?php echo htmlspecialchars($category['name']); ?></td>
-                  <td><?php echo htmlspecialchars($category['description']); ?></td>
-                  <td><span class="badge bg-primary"><?php echo $category['product_count']; ?> Products</span></td>
-                  <td>
-                    <button
-                      class="admin-btn admin-btn-warning btn-sm edit-category"
-                      data-category-id="<?php echo $category['category_id']; ?>"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editCategoryModal">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button
-                      class="admin-btn admin-btn-danger btn-sm delete-category"
-                      data-category-id="<?php echo $category['category_id']; ?>">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
+                  <td colspan="6" class="text-center">No categories found</td>
                 </tr>
-              <?php endforeach; ?>
+              <?php else: ?>
+                <?php foreach ($categories as $category): ?>
+                  <tr>
+                    <td>#C<?php echo str_pad($category['category_id'], 3, '0', STR_PAD_LEFT); ?></td>
+                    <td><i class="<?php echo htmlspecialchars($category['icon_class']); ?>"></i></td>
+                    <td><?php echo htmlspecialchars($category['name']); ?></td>
+                    <td><?php echo htmlspecialchars($category['description']); ?></td>
+                    <td><span class="badge bg-primary"><?php echo $category['product_count']; ?> Products</span></td>
+                    <td>
+                      <button class="admin-btn admin-btn-warning btn-sm">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="admin-btn admin-btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
@@ -111,7 +153,10 @@ $categories = getAllCategories();
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Add New Category</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"></button>
         </div>
         <form id="addCategoryForm">
           <div class="modal-body">
@@ -136,72 +181,19 @@ $categories = getAllCategories();
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="admin-btn admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="admin-btn admin-btn-primary">Add Category</button>
+            <button
+              type="button"
+              class="admin-btn admin-btn-secondary"
+              data-bs-dismiss="modal">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="admin-btn admin-btn-primary">
+              Add Category
+            </button>
           </div>
         </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Edit Category Modal -->
-  <div class="modal fade" id="editCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit Category</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Category Name</label>
-              <input
-                type="text"
-                class="admin-form-control"
-                value="Living Room"
-                required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Icon Class</label>
-              <div class="input-group">
-                <span class="input-group-text">fa-</span>
-                <input
-                  type="text"
-                  class="admin-form-control"
-                  value="couch"
-                  required />
-              </div>
-              <small class="text-muted">Enter Font Awesome icon name without 'fa-' prefix</small>
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Description</label>
-              <textarea class="admin-form-control" rows="3" required>
-Furniture for living rooms and lounges</textarea>
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Status</label>
-              <select class="admin-form-control" required>
-                <option value="active" selected>Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="admin-btn admin-btn-secondary btn-sm"
-            data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <button type="button" class="admin-btn admin-btn-primary btn-sm">
-            Save Changes
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -228,7 +220,7 @@ Furniture for living rooms and lounges</textarea>
           contentType: false,
           success: function(response) {
             const result = JSON.parse(response);
-            if (result.success) {
+            if (result.status === 'success') {
               alert('Category added successfully!');
               window.location.reload();
             } else {
@@ -239,14 +231,6 @@ Furniture for living rooms and lounges</textarea>
             alert('An error occurred while adding the category.');
           }
         });
-      });
-
-      // Delete Category
-      $('.delete-category').on('click', function() {
-        if (confirm('Are you sure you want to delete this category?')) {
-          const categoryId = $(this).data('category-id');
-          // Add delete functionality here
-        }
       });
     });
   </script>
