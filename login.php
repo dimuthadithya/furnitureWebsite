@@ -1,9 +1,20 @@
 <?php
 require_once 'includes/auth_handler.php';
 
+// Store redirect URL if provided
+if (isset($_GET['redirect'])) {
+  $_SESSION['redirect_after_login'] = $_GET['redirect'];
+}
+
 // Redirect if already logged in
 if (isLoggedIn()) {
-  header('Location: index.php');
+  if (isset($_SESSION['redirect_after_login'])) {
+    $redirect = $_SESSION['redirect_after_login'];
+    unset($_SESSION['redirect_after_login']);
+    header('Location: ' . $redirect);
+  } else {
+    header('Location: index.php');
+  }
   exit();
 }
 ?>
@@ -76,10 +87,10 @@ if (isLoggedIn()) {
           unset($_SESSION['success']);
           ?>
         </div>
-      <?php endif; ?>
-
-      <form method="POST" action="includes/auth_handler.php">
+      <?php endif; ?> <form method="POST" action="includes/auth_handler.php">
         <input type="hidden" name="action" value="login">
+        <?php if (isset($_GET['redirect'])): ?>
+          <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($_GET['redirect']); ?>"><?php endif; ?>
 
         <div class="form-group mb-3">
           <label class="form-label">Email</label>

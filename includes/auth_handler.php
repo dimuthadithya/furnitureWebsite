@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once dirname(__DIR__) . '/config/connection.php';
 
 // Function to register a new user
@@ -139,8 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $result = loginUser($email, $password);
         if ($result['status'] === 'success') {
-            // Redirect based on user role
-            if ($result['is_admin']) {
+            if (isset($_POST['redirect'])) {
+                header('Location: ' . $_POST['redirect']);
+            } else if ($result['is_admin']) {
                 header('Location: ../admin/index.php');
             } else {
                 header('Location: ../index.php');
