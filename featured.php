@@ -1,3 +1,13 @@
+<?php
+require_once 'config/db.php';
+
+// Fetch all products with their categories
+$sql = "SELECT p.*, c.name as category_name 
+        FROM products p 
+        LEFT JOIN categories c ON p.category_id = c.category_id 
+        ORDER BY p.product_id DESC";
+$products = fetchAll($sql);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -63,73 +73,18 @@
       <button class="filter-btn">Tables</button>
       <button class="filter-btn">Decor</button>
     </div>
-  </section>
-
-  <!-- Featured Products -->
+  </section> <!-- Featured Products -->
   <section class="container my-5">
     <div class="row">
-      <!-- Product 1 -->
-      <div class="col-md-4">
-        <div class="featured-product-card">
-          <img
-            src="assets/images/chair1.jpg"
-            alt="Modern Chair"
-            class="featured-product-image" />
-          <h3 class="featured-product-title">Modern Swivel Chair</h3>
-          <div class="featured-product-rating">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star-half-alt"></i>
-            <span>(4.5/5)</span>
-          </div>
-          <div class="featured-product-price">Rs3000</div>
-          <button class="btn-add-cart mt-3">Add to Cart</button>
+      <?php foreach ($products as $product): ?>
+        <div class="col-md-4 mb-4">
+          <?php include 'includes/product-card.php'; ?>
         </div>
-      </div>
-
-      <!-- Product 2 -->
-      <div class="col-md-4">
-        <div class="featured-product-card">
-          <img
-            src="assets/images/sofa1.jpg"
-            alt="Luxury Sofa"
-            class="featured-product-image" />
-          <h3 class="featured-product-title">Luxury Comfort Sofa</h3>
-          <div class="featured-product-rating">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <span>(5/5)</span>
-          </div>
-          <div class="featured-product-price">Rs5000</div>
-          <button class="btn-add-cart mt-3">Add to Cart</button>
-        </div>
-      </div>
-
-      <!-- Product 3 -->
-      <div class="col-md-4">
-        <div class="featured-product-card">
-          <img
-            src="assets/images/table1.jpg"
-            alt="Coffee Table"
-            class="featured-product-image" />
-          <h3 class="featured-product-title">Modern Coffee Table</h3>
-          <div class="featured-product-rating">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="far fa-star"></i>
-            <span>(4/5)</span>
-          </div>
-          <div class="featured-product-price">Rs2500</div>
-          <button class="btn-add-cart mt-3">Add to Cart</button>
-        </div>
-      </div>
+      <?php endforeach; ?>
+      <?php if (empty($products)): ?>
+        <div class="col-12 text-center">
+          <p>No products available at the moment.</p>
+        </div> <?php endif; ?>
     </div>
   </section>
 
