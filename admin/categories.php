@@ -128,10 +128,17 @@ $categories = getAllCategories();
                     <td><?php echo htmlspecialchars($category['description']); ?></td>
                     <td><span class="badge bg-primary"><?php echo $category['product_count']; ?> Products</span></td>
                     <td>
-                      <button class="admin-btn admin-btn-warning btn-sm">
+                      <button class="admin-btn admin-btn-warning btn-sm edit-category"
+                        data-category-id="<?php echo htmlspecialchars($category['category_id']); ?>"
+                        data-category-name="<?php echo htmlspecialchars($category['name']); ?>"
+                        data-category-description="<?php echo htmlspecialchars($category['description'] ?? ''); ?>"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editCategoryModal">
                         <i class="fas fa-edit"></i>
                       </button>
-                      <button class="admin-btn admin-btn-danger btn-sm">
+                      <button class="admin-btn admin-btn-danger btn-sm delete-category"
+                        data-category-id="<?php echo htmlspecialchars($category['category_id']); ?>"
+                        data-category-name="<?php echo htmlspecialchars($category['name']); ?>">
                         <i class="fas fa-trash"></i>
                       </button>
                     </td>
@@ -185,6 +192,67 @@ $categories = getAllCategories();
     </div>
   </div>
 
+  <!-- Edit Category Modal -->
+  <div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editCategoryForm">
+            <input type="hidden" id="editCategoryId" name="category_id">
+            <input type="hidden" name="action" value="edit">
+            <div class="mb-3">
+              <label for="editCategoryName" class="form-label">Category Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="editCategoryName"
+                name="name"
+                required />
+            </div>
+            <div class="mb-3">
+              <label for="editCategoryDescription" class="form-label">Description</label>
+              <textarea
+                class="form-control"
+                id="editCategoryDescription"
+                name="description"
+                rows="3"></textarea>
+            </div>
+            <div class="text-end">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Update Category</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete the category "<span id="deleteCategoryName"></span>"?</p>
+          <p class="text-danger">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteCategory">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- jQuery -->
@@ -218,6 +286,76 @@ $categories = getAllCategories();
             alert('An error occurred while adding the category.');
           }
         });
+      });
+
+      // Handle edit button click
+      $('.edit-category').click(function() {
+        const categoryId = $(this).data('category-id');
+        const categoryName = $(this).data('category-name');
+        const categoryDescription = $(this).data('category-description');
+
+        $('#editCategoryId').val(categoryId);
+        $('#editCategoryName').val(categoryName);
+        $('#editCategoryDescription').val(categoryDescription);
+      });
+
+      // Handle edit form submission
+      $('#editCategoryForm').submit(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          url: 'handlers/category_handler.php',
+          method: 'POST',
+          data: $(this).serialize(),
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              location.reload();
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function() {
+            alert('An error occurred while updating the category.');
+          }
+        });
+      });
+
+      // Handle delete button click
+      $('.delete-category').click(function() {
+        const categoryId = $(this).data('category-id');
+        const categoryName = $(this).data('category-name');
+
+        $('#deleteCategoryName').text(categoryName);
+        $('#confirmDeleteCategory').data('category-id', categoryId);
+        $('#deleteCategoryModal').modal('show');
+      });
+
+      // Handle delete confirmation
+      $('#confirmDeleteCategory').click(function() {
+        const categoryId = $(this).data('category-id');
+
+        $.ajax({
+          url: 'handlers/category_handler.php',
+          method: 'POST',
+          data: {
+            action: 'delete',
+            category_id: categoryId
+          },
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              location.reload();
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function() {
+            alert('An error occurred while deleting the category.');
+          }
+        });
+
+        $('#deleteCategoryModal').modal('hide');
       });
     });
   </script>
