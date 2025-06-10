@@ -1,3 +1,12 @@
+<?php
+require_once 'includes/auth_handler.php';
+
+// Redirect if already logged in
+if (isLoggedIn()) {
+  header('Location: index.php');
+  exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,75 +59,61 @@
         <h2>Create Account</h2>
         <p>Join us to start shopping</p>
       </div>
-      <form>
+
+      <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger">
+          <?php
+          echo $_SESSION['error'];
+          unset($_SESSION['error']);
+          ?>
+        </div>
+      <?php endif; ?>
+
+      <form method="POST" action="includes/auth_handler.php">
+        <input type="hidden" name="action" value="register">
+
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-12">
             <div class="form-group">
-              <label class="form-label">First Name</label>
+              <label class="form-label">Username</label>
               <input
                 type="text"
+                name="username"
                 class="form-control"
-                placeholder="Enter first name"
+                placeholder="Choose a username"
                 required />
             </div>
           </div>
-          <div class="col-md-6">
+
+          <div class="col-12">
             <div class="form-group">
-              <label class="form-label">Last Name</label>
+              <label class="form-label">Email</label>
               <input
-                type="text"
+                type="email"
+                name="email"
                 class="form-control"
-                placeholder="Enter last name"
+                placeholder="Enter your email"
+                required />
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="Choose a password"
                 required />
             </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input
-            type="email"
-            class="form-control"
-            placeholder="Enter your email"
-            required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            placeholder="Enter your password"
-            required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Confirm Password</label>
-          <input
-            type="password"
-            class="form-control"
-            placeholder="Confirm your password"
-            required />
-        </div>
-
-        <div class="terms-check">
-          <div class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="terms"
-              required />
-            <label class="form-check-label" for="terms">
-              I agree to the <a href="#">Terms of Service</a> and
-              <a href="#">Privacy Policy</a>
-            </label>
-          </div>
-        </div>
-
-        <button type="submit" class="auth-btn">Create Account</button>
+        <button type="submit" class="auth-btn mt-4">Create Account</button>
 
         <div class="auth-links">
-          <p>Already have an account? <a href="login.html">Login</a></p>
+          <p>Already have an account? <a href="login.php">Login</a></p>
         </div>
       </form>
     </div>

@@ -1,3 +1,12 @@
+<?php
+require_once 'includes/auth_handler.php';
+
+// Redirect if already logged in
+if (isLoggedIn()) {
+  header('Location: index.php');
+  exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -48,29 +57,54 @@
     <div class="auth-card">
       <div class="auth-header">
         <h2>Welcome Back</h2>
-        <p>Please login to your account</p>
+        <p>Sign in to continue shopping</p>
       </div>
-      <form>
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
+
+      <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger">
+          <?php
+          echo $_SESSION['error'];
+          unset($_SESSION['error']);
+          ?>
+        </div>
+      <?php endif; ?>
+
+      <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+          <?php
+          echo $_SESSION['success'];
+          unset($_SESSION['success']);
+          ?>
+        </div>
+      <?php endif; ?>
+
+      <form method="POST" action="includes/auth_handler.php">
+        <input type="hidden" name="action" value="login">
+
+        <div class="form-group mb-3">
+          <label class="form-label">Email</label>
           <input
             type="email"
+            name="email"
             class="form-control"
             placeholder="Enter your email"
-            required />
+            required>
         </div>
-        <div class="form-group">
+
+        <div class="form-group mb-4">
           <label class="form-label">Password</label>
           <input
             type="password"
+            name="password"
             class="form-control"
             placeholder="Enter your password"
-            required />
+            required>
         </div>
-        <button type="submit" class="auth-btn">Login</button>
+
+        <button type="submit" class="auth-btn">Sign In</button>
 
         <div class="auth-links">
-          <p>Don't have an account? <a href="register.html">Register</a></p>
+          <p>Don't have an account? <a href="register.php">Register</a></p>
         </div>
       </form>
     </div>
