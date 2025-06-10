@@ -1,5 +1,58 @@
 <?php
 require_once 'includes/auth_check.php';
+require_once '../config/connection.php';
+
+// Fetch dashboard statistics
+try {
+  // Total Users
+  $stmt = $conn->query("SELECT COUNT(*) as total_users FROM users WHERE is_admin = 0");
+  $userStats = $stmt->fetch();
+  $totalUsers = $userStats['total_users'];
+
+  // Total Products
+  $stmt = $conn->query("SELECT COUNT(*) as total_products FROM products");
+  $productStats = $stmt->fetch();
+  $totalProducts = $productStats['total_products'];
+
+  // Total Orders
+  $stmt = $conn->query("SELECT COUNT(*) as total_orders, SUM(total_amount) as total_revenue FROM orders");
+  $orderStats = $stmt->fetch();
+  $totalOrders = $orderStats['total_orders'] ?? 0;
+  $totalRevenue = $orderStats['total_revenue'] ?? 0;
+
+  // Recent Orders
+  $stmt = $conn->query("
+        SELECT o.*, u.username 
+        FROM orders o 
+        LEFT JOIN users u ON o.user_id = u.user_id 
+        ORDER BY o.created_at DESC 
+        LIMIT 5
+    ");
+  $recentOrders = $stmt->fetchAll();
+
+  // Low Stock Products (less than 5 items)
+  $stmt = $conn->query("
+        SELECT product_id, product_name, stock_quantity 
+        FROM products 
+        WHERE stock_quantity < 5 
+        ORDER BY stock_quantity ASC 
+        LIMIT 5
+    ");
+  $lowStockProducts = $stmt->fetchAll();
+
+  // Recent Reviews
+  $stmt = $conn->query("
+        SELECT r.*, u.username, p.product_name 
+        FROM reviews r 
+        LEFT JOIN users u ON r.user_id = u.user_id 
+        LEFT JOIN products p ON r.product_id = p.product_id 
+        ORDER BY r.created_at DESC 
+        LIMIT 5
+    ");
+  $recentReviews = $stmt->fetchAll();
+} catch (PDOException $e) {
+  $_SESSION['error'] = "Error fetching dashboard data: " . $e->getMessage();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,142 +94,180 @@ require_once 'includes/auth_check.php';
 
 <body>
   <div class="admin-wrapper">
-    <?php include '../includes/admin-sidebar.php'; ?>
-
-    <!-- Main Content -->
+    <?php include '../includes/admin-sidebar.php'; ?> <!-- Main Content -->
     <main class="admin-main">
       <!-- Header -->
       <header class="admin-header">
         <h1 class="h3 m-0">Dashboard</h1>
         <div class="admin-header-right">
-          <span class="me-3">Welcome, Admin</span>
+          <span class="me-3">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+          <span class="text-muted">Last updated: <?php echo date('F j, Y, g:i a'); ?></span>
         </div>
       </header>
-
       <!-- Stats Row -->
-      <div class="row">
+      <div class="row g-4 mt-4">
         <div class="col-md-3">
           <div class="stats-card primary">
             <i class="fas fa-shopping-cart"></i>
-            <h3>150</h3>
+            <h3><?php echo number_format($totalOrders); ?></h3>
             <p>Total Orders</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stats-card success">
             <i class="fas fa-box"></i>
-            <h3>75</h3>
+            <h3><?php echo number_format($totalProducts); ?></h3>
             <p>Products</p>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stats-card warning">
             <i class="fas fa-users"></i>
-            <h3>250</h3>
-            <p>Users</p>
+            <h3><?php echo number_format($totalUsers); ?></h3>
+            <p>Customers</p>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="stats-card danger">
-            <i class="fas fa-star"></i>
-            <h3>120</h3>
-            <p>Reviews</p>
+          <div class="stats-card info">
+            <i class="fas fa-dollar-sign"></i>
+            <h3>$<?php echo number_format($totalRevenue, 2); ?></h3>
+            <p>Total Revenue</p>
           </div>
         </div>
       </div>
 
-      <!-- Recent Orders -->
-      <div class="admin-card">
-        <div class="admin-card-header">
-          <h2 class="admin-card-title">Recent Orders</h2>
-          <a href="orders.html" class="admin-btn admin-btn-primary">View All</a>
+      <!-- Recent Orders, Low Stock Products, and Recent Reviews -->
+      <div class="row g-4 mt-4">
+        <div class="col-md-8">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title">Recent Orders</h2>
+              <a href="orders.php" class="admin-btn admin-btn-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php if (empty($recentOrders)): ?>
+                    <tr>
+                      <td colspan="5" class="text-center">No recent orders</td>
+                    </tr>
+                  <?php else: ?>
+                    <?php foreach ($recentOrders as $order): ?>
+                      <tr>
+                        <td>#<?php echo str_pad($order['order_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                        <td><?php echo htmlspecialchars($order['username']); ?></td>
+                        <td><?php echo date('M j, Y', strtotime($order['created_at'])); ?></td>
+                        <td>$<?php echo number_format($order['total_amount'], 2); ?></td>
+                        <td>
+                          <?php
+                          $statusClass = match ($order['status']) {
+                            'completed' => 'success',
+                            'pending' => 'warning',
+                            'cancelled' => 'danger',
+                            default => 'secondary'
+                          };
+                          ?>
+                          <span class="badge bg-<?php echo $statusClass; ?>">
+                            <?php echo ucfirst($order['status']); ?>
+                          </span>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>#1234</td>
-                <td>John Doe</td>
-                <td>Modern Sofa</td>
-                <td>$899</td>
-                <td><span class="badge bg-success">Delivered</span></td>
-              </tr>
-              <tr>
-                <td>#1235</td>
-                <td>Jane Smith</td>
-                <td>Dining Set</td>
-                <td>$1,299</td>
-                <td><span class="badge bg-warning">Processing</span></td>
-              </tr>
-              <tr>
-                <td>#1236</td>
-                <td>Mike Johnson</td>
-                <td>Office Chair</td>
-                <td>$299</td>
-                <td><span class="badge bg-info">Shipped</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <!-- Recent Reviews -->
-      <div class="admin-card">
-        <div class="admin-card-header">
-          <h2 class="admin-card-title">Recent Reviews</h2>
-          <a href="reviews.html" class="admin-btn admin-btn-primary">View All</a>
+        <div class="col-md-4">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title">Low Stock Alert</h2>
+              <a href="products.php" class="admin-btn admin-btn-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php if (empty($lowStockProducts)): ?>
+                    <tr>
+                      <td colspan="2" class="text-center">No low stock items</td>
+                    </tr>
+                  <?php else: ?>
+                    <?php foreach ($lowStockProducts as $product): ?>
+                      <tr>
+                        <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                        <td>
+                          <span class="badge bg-<?php echo $product['stock_quantity'] === 0 ? 'danger' : 'warning'; ?>">
+                            <?php echo $product['stock_quantity']; ?> left
+                          </span>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Product</th>
-                <th>Rating</th>
-                <th>Comment</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Sarah Johnson</td>
-                <td>Modern Sofa</td>
-                <td>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                </td>
-                <td>Excellent quality and comfort!</td>
-                <td>June 8, 2025</td>
-              </tr>
-              <tr>
-                <td>Michael Chen</td>
-                <td>Office Chair</td>
-                <td>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="fas fa-star text-warning"></i>
-                  <i class="far fa-star text-warning"></i>
-                </td>
-                <td>Great ergonomic design</td>
-                <td>June 7, 2025</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <div class="col-md-12 mt-4">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h2 class="admin-card-title">Recent Reviews</h2>
+              <a href="reviews.php" class="admin-btn admin-btn-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Review ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Rating</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php if (empty($recentReviews)): ?>
+                    <tr>
+                      <td colspan="5" class="text-center">No recent reviews</td>
+                    </tr>
+                  <?php else: ?>
+                    <?php foreach ($recentReviews as $review): ?>
+                      <tr>
+                        <td>#<?php echo str_pad($review['review_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                        <td><?php echo htmlspecialchars($review['username']); ?></td>
+                        <td><?php echo htmlspecialchars($review['product_name']); ?></td>
+                        <td>
+                          <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <i class="fas fa-star <?php echo $i <= $review['rating'] ? 'text-warning' : 'text-muted'; ?>"></i>
+                          <?php endfor; ?>
+                        </td>
+                        <td><?php echo date('M j, Y', strtotime($review['created_at'])); ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
     </main>
   </div>
 
