@@ -46,10 +46,9 @@ require_once dirname(__FILE__) . '/auth_handler.php';
                 <?php else: ?>
                     <?php if (isAdmin()): ?>
                         <a href="admin/index.php" class="btn btn-outline-dark me-2">Admin</a>
-                    <?php endif; ?>
-                    <span class="me-2 text-dark">
+                    <?php endif; ?> <span class="me-2 text-dark">
                         <i class="fas fa-user me-1"></i>
-                        <?php echo htmlspecialchars($_SESSION['username']); ?>
+                        <?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?>
                     </span>
                     <a href="profile.php" class="btn btn-outline-dark me-2">Profile</a>
                     <form action="includes/auth_handler.php" method="POST" class="d-inline">

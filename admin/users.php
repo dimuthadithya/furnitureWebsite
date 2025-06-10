@@ -1,5 +1,16 @@
 <?php
 require_once 'includes/auth_check.php';
+require_once '../config/connection.php';
+
+// Fetch users from database
+try {
+  $stmt = $conn->prepare("SELECT user_id, username, email, is_admin, created_at FROM users ORDER BY created_at DESC");
+  $stmt->execute();
+  $users = $stmt->fetchAll();
+} catch (PDOException $e) {
+  $_SESSION['error'] = "Error fetching users: " . $e->getMessage();
+  $users = []; // Initialize empty array to prevent foreach error
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,6 +101,15 @@ require_once 'includes/auth_check.php';
 
       <!-- Users Table -->
       <div class="admin-card">
+        <?php if (isset($_SESSION['error'])): ?>
+          <div class="alert alert-danger"><?php echo $_SESSION['error'];
+                                          unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['success'])): ?>
+          <div class="alert alert-success"><?php echo $_SESSION['success'];
+                                            unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+
         <div class="table-responsive">
           <table class="admin-table">
             <thead>
@@ -99,49 +119,35 @@ require_once 'includes/auth_check.php';
                 <th>Email</th>
                 <th>Role</th>
                 <th>Joined Date</th>
-                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>#001</td>
-                <td>John Doe</td>
-                <td>john@example.com</td>
-                <td>Customer</td>
-                <td>June 1, 2025</td>
-                <td><span class="badge bg-success">Active</span></td>
-                <td>
-                  <button
-                    class="admin-btn admin-btn-warning btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editUserModal">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="admin-btn admin-btn-danger btn-sm">
-                    <i class="fas fa-ban"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>#002</td>
-                <td>Jane Smith</td>
-                <td>jane@example.com</td>
-                <td>Admin</td>
-                <td>May 15, 2025</td>
-                <td><span class="badge bg-success">Active</span></td>
-                <td>
-                  <button
-                    class="admin-btn admin-btn-warning btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editUserModal">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="admin-btn admin-btn-danger btn-sm">
-                    <i class="fas fa-ban"></i>
-                  </button>
-                </td>
-              </tr>
+              <?php foreach ($users as $user): ?>
+                <tr>
+                  <td>#<?php echo str_pad($user['user_id'], 3, '0', STR_PAD_LEFT); ?></td>
+                  <td><?php echo htmlspecialchars($user['username']); ?></td>
+                  <td><?php echo htmlspecialchars($user['email']); ?></td>
+                  <td><?php echo $user['is_admin'] ? 'Admin' : 'Customer'; ?></td>
+                  <td><?php echo date('F j, Y', strtotime($user['created_at'])); ?></td>
+                  <td>
+                    <button
+                      class="admin-btn admin-btn-warning btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editUserModal"
+                      data-user-id="<?php echo $user['user_id']; ?>">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <?php if ($user['user_id'] !== $_SESSION['user_id']): ?>
+                      <button
+                        class="admin-btn admin-btn-danger btn-sm"
+                        onclick="toggleUserStatus(<?php echo $user['user_id']; ?>)">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
             </tbody>
           </table>
         </div>
@@ -258,9 +264,48 @@ require_once 'includes/auth_check.php';
       </div>
     </div>
   </div>
-
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Function to handle user status toggle
+    function toggleUserStatus(userId) {
+      if (confirm('Are you sure you want to change this user\'s status?')) {
+        // Create form data
+        const formData = new FormData();
+        formData.append('action', 'toggleStatus');
+        formData.append('user_id', userId);
+
+        // Send request
+        fetch('manage_user.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              location.reload();
+            } else {
+              alert(data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating user status');
+          });
+      }
+    }
+
+    // Handle edit user modal
+    const editUserModal = document.getElementById('editUserModal');
+    if (editUserModal) {
+      editUserModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const userId = button.getAttribute('data-user-id');
+        // You can fetch user details here and populate the modal form
+      });
+    }
+  </script>
 </body>
 
 </html>

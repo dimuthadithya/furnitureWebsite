@@ -18,10 +18,9 @@ function registerUser($username, $email, $password)
         }
 
         // Hash password
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
-        // Insert new user        $stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, is_admin) VALUES (?, ?, ?, 0)");
-        $stmt->execute([$username, $email, $password_hash]);
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);        // Insert new user
+        $stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, is_admin) VALUES (?, ?, ?, 0)");
+        $stmt->execute([$username, $email, $password_hash, 0]);
 
         return [
             'status' => 'success',
