@@ -1,3 +1,12 @@
+<?php
+require_once '../config/db.php';
+require_once 'handlers/product_handler.php';
+require_once 'handlers/category_handler.php';
+
+// Fetch all products and categories
+$products = getAllProducts();
+$categories = getAllCategories();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,148 +58,157 @@
           class="admin-btn admin-btn-primary btn-sm"
           data-bs-toggle="modal"
           data-bs-target="#addProductModal">
-          <i class="fas fa-plus"></i> Add New Product
+          Add Product
         </button>
       </header>
 
-      <!-- Products Table -->
-      <div class="admin-card">
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
+      <!-- Product List -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($products as $product): ?>
               <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
+                <td><?php echo htmlspecialchars($product['product_id']); ?></td>
                 <td>
-                  <img
-                    src="../assets/img/product1.jpg"
-                    alt="Modern Sofa"
-                    width="50"
-                    height="50"
-                    class="rounded" />
+                  <?php if ($product['image_url']): ?>
+                    <img src="../<?php echo htmlspecialchars($product['image_url']); ?>"
+                      alt="<?php echo htmlspecialchars($product['name']); ?>"
+                      style="width: 50px; height: 50px; object-fit: cover;">
+                  <?php else: ?>
+                    <div class="bg-secondary" style="width: 50px; height: 50px;"></div>
+                  <?php endif; ?>
                 </td>
-                <td>Modern Sofa</td>
-                <td>Living Room</td>
-                <td>$899</td>
-                <td>15</td>
-                <td><span class="badge bg-success">Active</span></td>
+                <td><?php echo htmlspecialchars($product['name']); ?></td>
+                <td><?php echo htmlspecialchars($product['category_name']); ?></td>
+                <td>$<?php echo number_format($product['price'], 2); ?></td>
+                <td><?php echo htmlspecialchars($product['stock_quantity']); ?></td>
                 <td>
-                  <button class="admin-btn admin-btn-warning btn-sm">
+                  <button class="btn btn-sm btn-primary edit-product"
+                    data-product-id="<?php echo htmlspecialchars($product['product_id']); ?>">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="admin-btn admin-btn-danger btn-sm">
+                  <button class="btn btn-sm btn-danger delete-product"
+                    data-product-id="<?php echo htmlspecialchars($product['product_id']); ?>"
+                    data-product-name="<?php echo htmlspecialchars($product['name']); ?>">
                     <i class="fas fa-trash"></i>
                   </button>
                 </td>
               </tr>
-              <tr>
-                <td>
-                  <img
-                    src="../assets/img/product2.jpg"
-                    alt="Dining Set"
-                    width="50"
-                    height="50"
-                    class="rounded" />
-                </td>
-                <td>Dining Set</td>
-                <td>Dining Room</td>
-                <td>$1,299</td>
-                <td>8</td>
-                <td><span class="badge bg-success">Active</span></td>
-                <td>
-                  <button class="admin-btn admin-btn-warning btn-sm">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="admin-btn admin-btn-danger btn-sm">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add Product Modal -->
+      <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add New Product</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="addProductForm" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="add">
+
+                <div class="mb-3">
+                  <label for="productName" class="form-label">Product Name</label>
+                  <input type="text" class="form-control" id="productName" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="productDescription" class="form-label">Description</label>
+                  <textarea class="form-control" id="productDescription" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="productPrice" class="form-label">Price</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="productPrice" name="price" step="0.01" min="0" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="productCategory" class="form-label">Category</label>
+                  <select class="form-select" id="productCategory" name="category_id" required>
+                    <option value="">Select a category</option>
+                    <?php foreach ($categories as $category): ?>
+                      <option value="<?php echo htmlspecialchars($category['category_id']); ?>">
+                        <?php echo htmlspecialchars($category['name']); ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="productStock" class="form-label">Stock Quantity</label>
+                  <input type="number" class="form-control" id="productStock" name="stock_quantity" min="0" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="productImage" class="form-label">Product Image</label>
+                  <input type="file" class="form-control" id="productImage" name="image" accept="image/*">
+                </div>
+
+                <div class="text-end">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Add Product</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
+
     </main>
   </div>
 
-  <!-- Add Product Modal -->
-  <div class="modal fade" id="addProductModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Add New Product</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Product Name</label>
-              <input type="text" class="admin-form-control" required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Category</label>
-              <select class="admin-form-control" required>
-                <option value="">Select Category</option>
-                <option value="living-room">Living Room</option>
-                <option value="bedroom">Bedroom</option>
-                <option value="dining-room">Dining Room</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Price</label>
-              <input type="number" class="admin-form-control" required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Stock</label>
-              <input type="number" class="admin-form-control" required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Product Image</label>
-              <input
-                type="file"
-                class="admin-form-control"
-                accept="image/*"
-                required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Description</label>
-              <textarea
-                class="admin-form-control"
-                rows="3"
-                required></textarea>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="admin-btn admin-btn-secondary"
-            data-bs-dismiss="modal">
-            Cancel
-          </button>
-          <button type="button" class="admin-btn admin-btn-primary">
-            Add Product
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap 5 JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Handle add product form submission
+      $('#addProductForm').submit(function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+          url: 'handlers/product_handler.php',
+          method: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              location.reload();
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function() {
+            alert('An error occurred while adding the product.');
+          }
+        });
+      });
+    });
+  </script>
 </body>
 
 </html>
