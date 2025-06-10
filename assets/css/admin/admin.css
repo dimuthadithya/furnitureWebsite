@@ -57,7 +57,8 @@ a{
     margin: 0.2rem 0.8rem;
 }
 
-.admin-sidebar .nav-link {
+.admin-sidebar .nav-link,
+.admin-sidebar button.nav-link {
     color: rgba(255, 255, 255, 0.8);
     padding: 0.8rem 1rem;
     border-radius: 0.5rem;
@@ -68,7 +69,8 @@ a{
 }
 
 .admin-sidebar .nav-link:hover,
-.admin-sidebar .nav-link.active {
+.admin-sidebar .nav-link.active,
+.admin-sidebar button.nav-link:hover {
     background-color: var(--admin-accent);
     color: var(--admin-primary);
     transform: translateX(5px);
@@ -81,17 +83,15 @@ a{
     font-size: 1.1rem;
 }
 
-/* Bottom links */
-.admin-sidebar .nav-item:nth-last-child(-n+2) {
-    margin-top: auto;
-}
-
-.admin-sidebar .nav-item:nth-last-child(-n+2) .nav-link {
+/* Bottom links including logout button */
+.admin-sidebar .nav-item:nth-last-child(-n+2) .nav-link,
+.admin-sidebar .nav-item:nth-last-child(-n+2) button.nav-link {
     background-color: rgba(255, 255, 255, 0.1);
     margin-top: 0.5rem;
 }
 
-.admin-sidebar .nav-item:nth-last-child(-n+2) .nav-link:hover {
+.admin-sidebar .nav-item:nth-last-child(-n+2) .nav-link:hover,
+.admin-sidebar .nav-item:nth-last-child(-n+2) button.nav-link:hover {
     background-color: var(--admin-accent);
 }
 
