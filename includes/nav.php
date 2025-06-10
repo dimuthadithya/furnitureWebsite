@@ -44,30 +44,18 @@ require_once dirname(__FILE__) . '/auth_handler.php';
                     <a href="register.php" class="btn btn-outline-dark me-2">Register</a>
                     <a href="login.php" class="btn btn-dark">Login</a>
                 <?php else: ?>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-dark dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo htmlspecialchars($_SESSION['username']); ?>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <?php if (isAdmin()): ?>
-                                <li><a class="dropdown-item" href="admin/index.php">Admin Dashboard</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                            <?php endif; ?>
-                            <li><a class="dropdown-item" href="#">My Orders</a></li>
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <form action="includes/auth_handler.php" method="POST" class="dropdown-item p-0">
-                                    <input type="hidden" name="action" value="logout">
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
+                    <?php if (isAdmin()): ?>
+                        <a href="admin/index.php" class="btn btn-outline-dark me-2">Admin</a>
+                    <?php endif; ?>
+                    <span class="me-2 text-dark">
+                        <i class="fas fa-user me-1"></i>
+                        <?php echo htmlspecialchars($_SESSION['username']); ?>
+                    </span>
+                    <a href="profile.php" class="btn btn-outline-dark me-2">Profile</a>
+                    <form action="includes/auth_handler.php" method="POST" class="d-inline">
+                        <input type="hidden" name="action" value="logout">
+                        <button type="submit" class="btn btn-dark">Logout</button>
+                    </form>
                 <?php endif; ?>
             </div>
         </div>
