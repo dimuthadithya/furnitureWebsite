@@ -14,7 +14,7 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 
-    // Set the PDO error mode to exception
+    // Set the PDO error mode to exception and default fetch mode
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     // If there is an error with the connection, stop the script and display the error
