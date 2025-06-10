@@ -34,10 +34,18 @@
                 <i class="fas fa-star"></i> Reviews
             </a>
         </li>
-        <li class="nav-item mt-4">
+        <li class="nav-item">
             <a class="nav-link" href="../index.php">
-                <i class="fas fa-sign-out-alt"></i> Exit Admin
+                <i class="fas fa-home"></i> Main Site
             </a>
+        </li>
+        <li class="nav-item mt-2">
+            <form action="../includes/auth_handler.php" method="POST">
+                <input type="hidden" name="action" value="logout">
+                <button type="submit" class="nav-link w-100 text-start border-0 bg-transparent">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
         </li>
     </ul>
 </nav>
