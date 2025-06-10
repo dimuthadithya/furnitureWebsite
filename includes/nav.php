@@ -33,9 +33,17 @@
                     <i class="fas fa-search"></i>
                 </button>
             </form>
-            <div class="d-flex align-items-center ms-3">
-                <a href="cart.php" class="text-dark me-3">
+            <div class="d-flex align-items-center ms-3"> <a href="cart.php" class="text-dark me-3 position-relative">
                     <i class="fas fa-shopping-cart"></i>
+                    <?php
+                    session_start();
+                    $cart_count = isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'quantity')) : 0;
+                    if ($cart_count > 0):
+                    ?>
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                            <?php echo $cart_count; ?>
+                        </span>
+                    <?php endif; ?>
                 </a>
                 <a href="register.php" class="btn btn-outline-dark me-2">Register</a>
                 <a href="login.php" class="btn btn-dark">Login</a>

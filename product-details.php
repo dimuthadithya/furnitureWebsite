@@ -121,8 +121,19 @@ $related_products = fetchAll($sql, [$product['category_id'], $product_id]);
     <?php include 'includes/footer.php'; ?>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <!-- Toast Notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-shopping-cart me-2"></i>
+                <strong class="me-auto">Shopping Cart</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function updateQuantity(change) {
             const input = document.getElementById('quantity');
@@ -135,9 +146,42 @@ $related_products = fetchAll($sql, [$product['category_id'], $product_id]);
         }
 
         function addToCart(productId) {
-            const quantity = document.getElementById('quantity').value;
-            // TODO: Implement add to cart functionality
-            alert('Added ' + quantity + ' item(s) to cart');
+            const quantity = parseInt(document.getElementById('quantity').value);
+
+            $.ajax({
+                url: 'handlers/cart_handler.php',
+                method: 'POST',
+                data: {
+                    action: 'add',
+                    product_id: productId,
+                    quantity: quantity
+                },
+                dataType: 'json',
+                success: function(response) {
+                    // Show toast notification
+                    const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+                    const toastBody = document.querySelector('.toast-body');
+
+                    if (response.status === 'success') {
+                        toastBody.textContent = response.message;
+                        // Update cart count in navigation if it exists
+                        const cartCount = document.getElementById('cart-count');
+                        if (cartCount) {
+                            cartCount.textContent = response.cart_count;
+                        }
+                    } else {
+                        toastBody.textContent = response.message;
+                    }
+
+                    toast.show();
+                },
+                error: function() {
+                    const toast = new bootstrap.Toast(document.getElementById('cartToast'));
+                    const toastBody = document.querySelector('.toast-body');
+                    toastBody.textContent = 'An error occurred while adding to cart';
+                    toast.show();
+                }
+            });
         }
     </script>
 </body>
