@@ -58,6 +58,8 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/colors.css">
+    <link rel="stylesheet" href="assets/css/navigation.css">
+    <link rel="stylesheet" href="assets/css/footer.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/product-details.css">
 </head>
@@ -155,64 +157,37 @@ try {
                     </form>
                 <?php else: ?>
                     <button class="btn-out-of-stock w-100" disabled>Out of Stock</button>
-                <?php endif; ?>
-
-                <div class="product-price mb-3">
-                    <span class="price">$<?php echo number_format($product['price'], 2); ?></span>
-                    <?php if ($product['old_price']): ?>
-                        <span class="old-price">$<?php echo number_format($product['old_price'], 2); ?></span>
-                    <?php endif; ?>
-                </div>
-
-                <div class="product-rating mb-3">
-                    <?php
-                    $rating = $product['average_rating'] ?? 0;
-                    for ($i = 1; $i <= 5; $i++) {
-                        if ($i <= $rating) {
-                            echo '<i class="fas fa-star"></i>';
-                        } elseif ($i - 0.5 <= $rating) {
-                            echo '<i class="fas fa-star-half-alt"></i>';
-                        } else {
-                            echo '<i class="far fa-star"></i>';
-                        }
-                    }
-                    ?>
-                    <span class="rating-count">(<?php echo $product['review_count'] ?? 0; ?> reviews)</span>
-                </div>
+                <?php endif; ?> <div class="product-price mb-4">$<?php echo number_format($product['price'], 2); ?></div>
 
                 <div class="product-description mb-4">
                     <?php echo nl2br(htmlspecialchars($product['description'])); ?>
                 </div>
 
                 <div class="product-meta mb-4">
-                    <p><strong>SKU:</strong> <?php echo htmlspecialchars($product['sku']); ?></p>
-                    <p><strong>Category:</strong> <?php echo htmlspecialchars($product['category_name']); ?></p>
-                    <p><strong>Status:</strong>
-                        <?php if ($product['stock_quantity'] > 0): ?>
-                            <span class="text-success">In Stock (<?php echo $product['stock_quantity']; ?>)</span>
-                        <?php else: ?>
-                            <span class="text-danger">Out of Stock</span>
-                        <?php endif; ?>
-                    </p>
+                    <div class="meta-item">
+                        <span class="meta-label">Category:</span>
+                        <span class="meta-value"><?php echo htmlspecialchars($product['category_name']); ?></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Availability:</span>
+                        <span class="meta-value <?php echo $product['stock_quantity'] > 0 ? 'text-success' : 'text-danger'; ?>">
+                            <?php echo $product['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?>
+                        </span>
+                    </div>
                 </div>
 
                 <?php if ($product['stock_quantity'] > 0): ?>
-                    <form action="cart.php" method="POST" class="add-to-cart-form">
+                    <form action="cart.php" method="POST" class="d-flex gap-3 mb-4">
+                        <input type="hidden" name="action" value="add">
                         <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
-                        <div class="row g-3 align-items-center mb-4">
-                            <div class="col-auto">
-                                <label for="quantity" class="col-form-label">Quantity:</label>
-                            </div>
-                            <div class="col-auto">
-                                <input type="number" id="quantity" name="quantity" class="form-control"
-                                    value="1" min="1" max="<?php echo $product['stock_quantity']; ?>">
-                            </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                                </button>
-                            </div>
+                        <div class="quantity-input">
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                            <input type="number" name="quantity" value="1" min="1"
+                                max="<?php echo $product['stock_quantity']; ?>"
+                                class="quantity-value">
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
                         </div>
+                        <button type="submit" class="btn-add-cart flex-grow-1">Add to Cart</button>
                     </form>
                 <?php endif; ?>
             </div>
