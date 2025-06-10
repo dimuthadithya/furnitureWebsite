@@ -1,328 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Modern Furniture Store</title>
 
-    <!-- Favicon -->
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="./assets/img/favicon_io/apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="./assets/img/favicon_io/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="./assets/img/favicon_io/favicon-16x16.png"
-    />
-    <link rel="manifest" href="/site.webmanifest" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Furniture Store</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/colors.css" />
-    <link rel="stylesheet" href="assets/css/navigation.css" />
-    <link rel="stylesheet" href="assets/css/footer.css" />
-    <link rel="stylesheet" href="assets/css/styles.css" />
-  </head>
-  <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg">
-      <div class="container">
-        <a class="navbar-brand" href="index.html">Furniture</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="index.html">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="featured.html">Featured</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="about.html">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="contact.html">Contact</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="review.html">Review</a>
-            </li>
-          </ul>
-          <form class="search-form d-flex">
-            <input class="form-control" type="search" placeholder="Search" />
-            <button class="btn" type="submit">
-              <i class="fas fa-search"></i>
-            </button>
-          </form>
-          <div class="d-flex align-items-center ms-3">
-            <a href="cart.html" class="text-dark me-3">
-              <i class="fas fa-shopping-cart"></i>
-            </a>
-            <a href="register.html" class="btn btn-outline-dark me-2"
-              >Register</a
-            >
-            <a href="login.html" class="btn btn-dark">Login</a>
-          </div>
+  <!-- Favicon -->
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="./assets/img/favicon_io/apple-touch-icon.png" />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="./assets/img/favicon_io/favicon-32x32.png" />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="./assets/img/favicon_io/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Bootstrap 5 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/colors.css" />
+  <link rel="stylesheet" href="assets/css/navigation.css" />
+  <link rel="stylesheet" href="assets/css/footer.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+
+<body>
+  <?php include 'includes/nav.php'; ?>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h1 class="hero-title">Modern Furniture for Stylish Comfort</h1>
+          <p class="hero-description">
+            Each piece of furniture in their home suited the style of the
+            house with wood composition or fabricated wood materials.
+          </p>
+          <a href="#" class="btn-shop-now">Shop now</a>
+          <a href="#" class="btn ms-3">Show reel</a>
         </div>
-      </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <h1 class="hero-title">Modern Furniture for Stylish Comfort</h1>
-            <p class="hero-description">
-              Each piece of furniture in their home suited the style of the
-              house with wood composition or fabricated wood materials.
-            </p>
-            <a href="#" class="btn-shop-now">Shop now</a>
-            <a href="#" class="btn ms-3">Show reel</a>
-          </div>
-          <div class="col-md-6">
-            <div class="position-relative">
-              <img
-                src="assets/images/modern-chair.jpg"
-                alt="Modern Chair"
-                class="img-fluid"
-              />
-              <div
-                class="position-absolute top-0 end-0 bg-dark text-white p-3 rounded"
-              >
-                <h5 class="mb-0">Modern Swivel Chair</h5>
-                <p class="mb-0">Rs3000</p>
-                <button class="btn btn-sm text-white">Add to Cart</button>
-              </div>
+        <div class="col-md-6">
+          <div class="position-relative">
+            <img
+              src="assets/images/modern-chair.jpg"
+              alt="Modern Chair"
+              class="img-fluid" />
+            <div
+              class="position-absolute top-0 end-0 bg-dark text-white p-3 rounded">
+              <h5 class="mb-0">Modern Swivel Chair</h5>
+              <p class="mb-0">Rs3000</p>
+              <button class="btn btn-sm text-white">Add to Cart</button>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Categories Section -->
-    <section class="categories-section py-5 bg-light">
-      <div class="container">
-        <h2 class="text-center mb-5">Shop by Category</h2>
-        <div class="row g-4">
-          <div class="col-md-3 col-sm-6">
-            <div class="category-card">
-              <img
-                src="assets/images/category-chairs.jpg"
-                alt="Chairs"
-                class="category-image"
-              />
-              <div class="category-content">
-                <h3>Chairs</h3>
-                <p>Modern & Comfortable</p>
-                <a href="featured.html" class="category-link"
-                  >View Collection →</a
-                >
-              </div>
+  <!-- Categories Section -->
+  <section class="categories-section py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-5">Shop by Category</h2>
+      <div class="row g-4">
+        <div class="col-md-3 col-sm-6">
+          <div class="category-card">
+            <img
+              src="assets/images/category-chairs.jpg"
+              alt="Chairs"
+              class="category-image" />
+            <div class="category-content">
+              <h3>Chairs</h3>
+              <p>Modern & Comfortable</p>
+              <a href="featured.html" class="category-link">View Collection →</a>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="category-card">
-              <img
-                src="assets/images/category-sofas.jpg"
-                alt="Sofas"
-                class="category-image"
-              />
-              <div class="category-content">
-                <h3>Sofas</h3>
-                <p>Luxurious & Cozy</p>
-                <a href="featured.html" class="category-link"
-                  >View Collection →</a
-                >
-              </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="category-card">
+            <img
+              src="assets/images/category-sofas.jpg"
+              alt="Sofas"
+              class="category-image" />
+            <div class="category-content">
+              <h3>Sofas</h3>
+              <p>Luxurious & Cozy</p>
+              <a href="featured.html" class="category-link">View Collection →</a>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="category-card">
-              <img
-                src="assets/images/category-tables.jpg"
-                alt="Tables"
-                class="category-image"
-              />
-              <div class="category-content">
-                <h3>Tables</h3>
-                <p>Elegant & Functional</p>
-                <a href="featured.html" class="category-link"
-                  >View Collection →</a
-                >
-              </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="category-card">
+            <img
+              src="assets/images/category-tables.jpg"
+              alt="Tables"
+              class="category-image" />
+            <div class="category-content">
+              <h3>Tables</h3>
+              <p>Elegant & Functional</p>
+              <a href="featured.html" class="category-link">View Collection →</a>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="category-card">
-              <img
-                src="assets/images/category-decor.jpg"
-                alt="Home Decor"
-                class="category-image"
-              />
-              <div class="category-content">
-                <h3>Home Decor</h3>
-                <p>Stylish & Trendy</p>
-                <a href="featured.html" class="category-link"
-                  >View Collection →</a
-                >
-              </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="category-card">
+            <img
+              src="assets/images/category-decor.jpg"
+              alt="Home Decor"
+              class="category-image" />
+            <div class="category-content">
+              <h3>Home Decor</h3>
+              <p>Stylish & Trendy</p>
+              <a href="featured.html" class="category-link">View Collection →</a>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Popular Products -->
-    <section class="popular-products py-5">
-      <div class="container">
-        <h2 class="mb-4">Popular Furniture</h2>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="product-card">
-              <img
-                src="assets/images/chair1.jpg"
-                alt="Modern Chair"
-                class="product-image"
-              />
-              <h3 class="product-title">Modern Chair</h3>
-              <p class="product-price">Rs3000</p>
-              <button class="btn-add-cart">Add to Cart</button>
-            </div>
+  <!-- Popular Products -->
+  <section class="popular-products py-5">
+    <div class="container">
+      <h2 class="mb-4">Popular Furniture</h2>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="product-card">
+            <img
+              src="assets/images/chair1.jpg"
+              alt="Modern Chair"
+              class="product-image" />
+            <h3 class="product-title">Modern Chair</h3>
+            <p class="product-price">Rs3000</p>
+            <button class="btn-add-cart">Add to Cart</button>
           </div>
-          <div class="col-md-4">
-            <div class="product-card">
-              <img
-                src="assets/images/chair2.jpg"
-                alt="Modern Chair"
-                class="product-image"
-              />
-              <h3 class="product-title">Modern Chair</h3>
-              <p class="product-price">Rs3000</p>
-              <button class="btn-add-cart">Add to Cart</button>
-            </div>
+        </div>
+        <div class="col-md-4">
+          <div class="product-card">
+            <img
+              src="assets/images/chair2.jpg"
+              alt="Modern Chair"
+              class="product-image" />
+            <h3 class="product-title">Modern Chair</h3>
+            <p class="product-price">Rs3000</p>
+            <button class="btn-add-cart">Add to Cart</button>
           </div>
-          <div class="col-md-4">
-            <div class="product-card">
-              <img
-                src="assets/images/chair3.jpg"
-                alt="Modern Chair"
-                class="product-image"
-              />
-              <h3 class="product-title">Modern Chair</h3>
-              <p class="product-price">Rs3000</p>
-              <button class="btn-add-cart">Add to Cart</button>
-            </div>
+        </div>
+        <div class="col-md-4">
+          <div class="product-card">
+            <img
+              src="assets/images/chair3.jpg"
+              alt="Modern Chair"
+              class="product-image" />
+            <h3 class="product-title">Modern Chair</h3>
+            <p class="product-price">Rs3000</p>
+            <button class="btn-add-cart">Add to Cart</button>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Features -->
-    <section class="features-section">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-4">
-            <div class="feature-item">
-              <i class="fas fa-tag feature-icon"></i>
-              <h4>Affordable Prices</h4>
-            </div>
+  <!-- Features -->
+  <section class="features-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="feature-item">
+            <i class="fas fa-tag feature-icon"></i>
+            <h4>Affordable Prices</h4>
           </div>
-          <div class="col-md-4">
-            <div class="feature-item">
-              <i class="fas fa-truck feature-icon"></i>
-              <h4>Free Shipping</h4>
-            </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-item">
+            <i class="fas fa-truck feature-icon"></i>
+            <h4>Free Shipping</h4>
           </div>
-          <div class="col-md-4">
-            <div class="feature-item">
-              <i class="fas fa-shield-alt feature-icon"></i>
-              <h4>5 Years Warranty</h4>
-            </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-item">
+            <i class="fas fa-shield-alt feature-icon"></i>
+            <h4>5 Years Warranty</h4>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer>
-      <div class="container">
-        <div class="row">
-          <div class="col-md-3">
-            <h5 class="footer-heading">FURNITURE</h5>
-            <p>
-              "Discover stylish,affordable furniture and home decor to transform
-              your space.Shop online 24/7 with secure checkout and fast
-              delivery".
-            </p>
-          </div>
-          <div class="col-md-3">
-            <h5 class="footer-heading">PRODUCTS</h5>
-            <ul class="footer-links">
-              <li><a href="#">Chairs</a></li>
-              <li><a href="#">Sofas</a></li>
-              <li><a href="#">Home Decor</a></li>
-              <li><a href="#">Best Sellers</a></li>
-            </ul>
-          </div>
-          <div class="col-md-3">
-            <h5 class="footer-heading">USEFUL LINKS</h5>
-            <ul class="footer-links">
-              <li><a href="#">Shipping & Returns</a></li>
-              <li><a href="#">Terms & Conditions</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-              <li><a href="#">About Us</a></li>
-            </ul>
-          </div>
-          <div class="col-md-3">
-            <h5 class="footer-heading">CONTACT</h5>
-            <ul class="footer-links">
-              <li><i class="fas fa-map-marker-alt"></i> Kegalle,Sri Lanka</li>
-              <li><i class="fas fa-envelope"></i> furniture@gmail.com</li>
-              <li><i class="fas fa-phone"></i> + 94717323579</li>
-              <li><i class="fas fa-print"></i> + 94728410781</li>
-            </ul>
-            <div class="social-links mt-3">
-              <a href="#"><i class="fab fa-facebook"></i></a>
-              <a href="#"><i class="fab fa-twitter"></i></a>
-              <a href="#"><i class="fab fa-google"></i></a>
-              <a href="#"><i class="fab fa-instagram"></i></a>
-              <a href="#"><i class="fab fa-linkedin"></i></a>
-              <a href="#"><i class="fab fa-github"></i></a>
-            </div>
-          </div>
-        </div>
-        <div class="text-center mt-4">
-          <p>© 2024 Copyright: Furniture</p>
-        </div>
-      </div>
-    </footer>
+  <?php include 'includes/footer.php'; ?>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>
