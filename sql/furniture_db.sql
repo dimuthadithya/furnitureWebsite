@@ -69,7 +69,7 @@ INSERT INTO categories (name, description) VALUES
 ('Chairs', 'Various types of chairs including office chairs, dining chairs, and lounge chairs.'),
 ('Tables', 'Different styles of tables such as coffee tables, dining tables, and side tables.'),
 ('Sofas', 'Comfortable sofas and couches for living rooms.'),
-('Beds', 'Beds and mattresses for a good night', 'sleep.'),
+('Beds', 'Beds and mattresses for a good nights sleep.'),
 ('Storage', 'Storage solutions including cabinets, shelves, and wardrobes.');
 
 -- Insert sample admin user (password: admin123)
