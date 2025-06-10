@@ -1,0 +1,97 @@
+<?php
+require_once 'config/db.php';
+
+// Fetch all products with their categories
+$sql = "SELECT p.*, c.name as category_name 
+        FROM products p 
+        LEFT JOIN categories c ON p.category_id = c.category_id 
+        ORDER BY p.product_id DESC";
+$products = fetchAll($sql);
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Featured Products - Modern Furniture Store</title>
+
+  <!-- Favicon -->
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="./assets/img/favicon_io/apple-touch-icon.png" />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="./assets/img/favicon_io/favicon-32x32.png" />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="./assets/img/favicon_io/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Bootstrap 5 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/colors.css" />
+  <link rel="stylesheet" href="assets/css/navigation.css" />
+  <link rel="stylesheet" href="assets/css/footer.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/featured.css" />
+</head>
+
+<body>
+  <?php include 'includes/nav.php'; ?>
+
+  <!-- Featured Header -->
+  <header class="featured-header">
+    <div class="container">
+      <h1 class="featured-title">Featured Products</h1>
+      <p class="featured-description">
+        Discover our carefully curated collection of premium furniture pieces
+        that blend style, comfort, and functionality.
+      </p>
+    </div>
+  </header>
+
+  <!-- Filter Section -->
+  <section class="filter-section">
+    <div class="container text-center">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Chairs</button>
+      <button class="filter-btn">Sofas</button>
+      <button class="filter-btn">Tables</button>
+      <button class="filter-btn">Decor</button>
+    </div>
+  </section> <!-- Featured Products -->
+  <section class="container my-5">
+    <div class="row">
+      <?php foreach ($products as $product): ?>
+        <div class="col-md-4 mb-4">
+          <?php include 'includes/product-card.php'; ?>
+        </div>
+      <?php endforeach; ?>
+      <?php if (empty($products)): ?>
+        <div class="col-12 text-center">
+          <p>No products available at the moment.</p>
+        </div> <?php endif; ?>
+    </div>
+  </section>
+
+  <?php include 'includes/footer.php'; ?>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+-- Create database
+CREATE DATABASE furniture_db;
+USE furniture_db;
+
+-- Users table
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    is_admin BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Categories table
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    description TEXT
+);
+
+-- Products table
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    category_id INT,
+    stock_quantity INT DEFAULT 0,
+    image_url VARCHAR(255),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Orders table
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Order items table
+CREATE TABLE order_items (
+    order_id INT,
+    product_id INT,
+    quantity INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+-- Reviews table
+CREATE TABLE reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT,
+    user_id INT,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Sample categories
+INSERT INTO categories (name, description) VALUES
+('Chairs', 'Various types of chairs including office chairs, dining chairs, and lounge chairs.'),
+('Tables', 'Different styles of tables such as coffee tables, dining tables, and side tables.'),
+('Sofas', 'Comfortable sofas and couches for living rooms.'),
+('Beds', 'Beds and mattresses for a good nights sleep.'),
+('Storage', 'Storage solutions including cabinets, shelves, and wardrobes.');
+
+-- Insert sample admin user (password: admin123)
+INSERT INTO users (username, email, password_hash, is_admin) VALUES
+('admin', 'admin@furniture.com', '$2y$10$XoiVQUUkG5HY1iB4MxJZwObCE4Q7ANhX1RXpY1eY0Y8f8Z2Y7q5wG', TRUE);
