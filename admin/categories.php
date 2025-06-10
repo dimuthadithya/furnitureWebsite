@@ -109,7 +109,6 @@ $categories = getAllCategories();
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Icon</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Products Count</th>
@@ -119,13 +118,12 @@ $categories = getAllCategories();
             <tbody>
               <?php if (empty($categories)): ?>
                 <tr>
-                  <td colspan="6" class="text-center">No categories found</td>
+                  <td colspan="5" class="text-center">No categories found</td>
                 </tr>
               <?php else: ?>
                 <?php foreach ($categories as $category): ?>
                   <tr>
                     <td>#C<?php echo str_pad($category['category_id'], 3, '0', STR_PAD_LEFT); ?></td>
-                    <td><i class="<?php echo htmlspecialchars($category['icon_class']); ?>"></i></td>
                     <td><?php echo htmlspecialchars($category['name']); ?></td>
                     <td><?php echo htmlspecialchars($category['description']); ?></td>
                     <td><span class="badge bg-primary"><?php echo $category['product_count']; ?> Products</span></td>
@@ -163,17 +161,6 @@ $categories = getAllCategories();
             <div class="admin-form-group">
               <label class="admin-form-label">Category Name</label>
               <input type="text" name="name" class="admin-form-control" required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Icon Class</label>
-              <select name="icon_class" class="admin-form-control" required>
-                <option value="fas fa-couch">Couch</option>
-                <option value="fas fa-bed">Bed</option>
-                <option value="fas fa-chair">Chair</option>
-                <option value="fas fa-table">Table</option>
-                <option value="fas fa-lamp">Lamp</option>
-                <option value="fas fa-door-closed">Door</option>
-              </select>
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Description</label>

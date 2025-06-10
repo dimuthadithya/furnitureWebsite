@@ -16,8 +16,7 @@ CREATE TABLE users (
 CREATE TABLE categories (
     category_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
-    description TEXT,
-    icon_class VARCHAR(50)
+    description TEXT
 );
 
 -- Products table
@@ -65,12 +64,13 @@ CREATE TABLE reviews (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Insert sample categories
-INSERT INTO categories (name, description, icon_class) VALUES
-('Living Room', 'Furniture for living rooms and lounges', 'fa-couch'),
-('Bedroom', 'Beds and bedroom furniture sets', 'fa-bed'),
-('Dining Room', 'Dining tables and chairs', 'fa-utensils'),
-('Office', 'Office furniture and workstations', 'fa-desk');
+-- Sample categories
+INSERT INTO categories (name, description) VALUES
+('Chairs', 'Various types of chairs including office chairs, dining chairs, and lounge chairs.'),
+('Tables', 'Different styles of tables such as coffee tables, dining tables, and side tables.'),
+('Sofas', 'Comfortable sofas and couches for living rooms.'),
+('Beds', 'Beds and mattresses for a good night', 'sleep.'),
+('Storage', 'Storage solutions including cabinets, shelves, and wardrobes.');
 
 -- Insert sample admin user (password: admin123)
 INSERT INTO users (username, email, password_hash, is_admin) VALUES

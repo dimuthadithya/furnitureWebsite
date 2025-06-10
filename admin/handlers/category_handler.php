@@ -2,10 +2,10 @@
 require_once dirname(dirname(__DIR__)) . '/config/db.php';
 
 // Add new category function
-function addCategory($name, $description, $icon_class)
+function addCategory($name, $description)
 {
-    $sql = "INSERT INTO categories (name, description, icon_class) VALUES (?, ?, ?)";
-    $result = insert($sql, [$name, $description, $icon_class]);
+    $sql = "INSERT INTO categories (name, description) VALUES (?, ?)";
+    $result = insert($sql, [$name, $description]);
 
     if ($result) {
         return [
@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add') {
         $name = $_POST['name'] ?? '';
         $description = $_POST['description'] ?? '';
-        $icon_class = $_POST['icon_class'] ?? '';
 
         // Validate input
         if (empty($name)) {
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Add category
-        $result = addCategory($name, $description, $icon_class);
+        $result = addCategory($name, $description);
         echo json_encode($result);
         exit;
     }
