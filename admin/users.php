@@ -230,50 +230,49 @@ try {
       </div>
     </div>
   </div>
-
   <!-- Edit User Modal -->
   <div class="modal fade" id="editUserModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Edit User</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form>
+          <form id="editUserForm">
+            <input type="hidden" name="user_id" id="editUserId">
             <div class="admin-form-group">
-              <label class="admin-form-label">Full Name</label>
+              <label class="admin-form-label">Username</label>
               <input
                 type="text"
+                name="username"
+                id="editUsername"
                 class="admin-form-control"
-                value="John Doe"
                 required />
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Email</label>
               <input
                 type="email"
+                name="email"
+                id="editEmail"
                 class="admin-form-control"
-                value="john@example.com"
                 required />
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Role</label>
-              <select class="admin-form-control" required>
-                <option value="customer" selected>Customer</option>
-                <option value="admin">Admin</option>
+              <select name="is_admin" id="editRole" class="admin-form-control" required>
+                <option value="0">Customer</option>
+                <option value="1">Admin</option>
               </select>
             </div>
             <div class="admin-form-group">
-              <label class="admin-form-label">Status</label>
-              <select class="admin-form-control" required>
-                <option value="active" selected>Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="blocked">Blocked</option>
-              </select>
+              <label class="admin-form-label">New Password (leave blank to keep current)</label>
+              <input
+                type="password"
+                name="password"
+                id="editPassword"
+                class="admin-form-control" />
             </div>
           </form>
         </div>
@@ -284,7 +283,7 @@ try {
             data-bs-dismiss="modal">
             Cancel
           </button>
-          <button type="button" class="admin-btn admin-btn-primary btn-sm">
+          <button type="button" id="saveUserBtn" class="admin-btn admin-btn-primary btn-sm">
             Save Changes
           </button>
         </div>
@@ -293,45 +292,123 @@ try {
   </div>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <script>
-    // Function to handle user status toggle
-    function toggleUserStatus(userId) {
-      if (confirm('Are you sure you want to change this user\'s status?')) {
-        // Create form data
-        const formData = new FormData();
-        formData.append('action', 'toggleStatus');
-        formData.append('user_id', userId);
+    document.addEventListener('DOMContentLoaded', function() {
+      // Edit User Modal Handler
+      const editModal = document.getElementById('editUserModal');
+      const editUserForm = document.getElementById('editUserForm');
+      const editUserId = document.getElementById('editUserId');
+      const editUsername = document.getElementById('editUsername');
+      const editEmail = document.getElementById('editEmail');
+      const editRole = document.getElementById('editRole');
+      const saveUserBtn = document.getElementById('saveUserBtn');
 
-        // Send request
-        fetch('manage_user.php', {
+      // When edit button is clicked
+      document.querySelectorAll('[data-bs-target="#editUserModal"]').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.dataset.userId;
+
+          // Show loading state
+          editUsername.disabled = true;
+          editEmail.disabled = true;
+          editRole.disabled = true;
+          saveUserBtn.disabled = true;
+          editUsername.value = 'Loading...';
+          editEmail.value = 'Loading...';
+
+          // Fetch user data from server
+          fetch(`handlers/get_user.php?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const user = data.user;
+                editUserId.value = user.user_id;
+                editUsername.value = user.username;
+                editEmail.value = user.email;
+                editRole.value = user.is_admin ? '1' : '0';
+                editPassword.value = '';
+
+                // Enable form fields
+                editUsername.disabled = false;
+                editEmail.disabled = false;
+                editRole.disabled = false;
+                saveUserBtn.disabled = false;
+              } else {
+                alert(data.message || 'Error fetching user data');
+                editModal.hide();
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Error fetching user data');
+              editModal.hide();
+            });
+        });
+      });
+
+      // Handle form submission
+      editUserForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveUserBtn.disabled = true;
+        saveUserBtn.innerHTML = 'Saving...';
+
+        const formData = new FormData(this);
+
+        fetch('handlers/user_handler.php', {
             method: 'POST',
             body: formData
           })
           .then(response => response.json())
           .then(data => {
-            if (data.status === 'success') {
-              location.reload();
+            if (data.success) {
+              window.location.reload();
             } else {
-              alert(data.message);
+              alert(data.message || 'Error updating user');
+              saveUserBtn.disabled = false;
+              saveUserBtn.innerHTML = 'Save Changes';
             }
           })
           .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating user status');
+            alert('Error updating user');
+            saveUserBtn.disabled = false;
+            saveUserBtn.innerHTML = 'Save Changes';
           });
-      }
-    }
-
-    // Handle edit user modal
-    const editUserModal = document.getElementById('editUserModal');
-    if (editUserModal) {
-      editUserModal.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const userId = button.getAttribute('data-user-id');
-        // You can fetch user details here and populate the modal form
       });
-    }
+
+      // Handle save button click
+      saveUserBtn.addEventListener('click', function() {
+        editUserForm.dispatchEvent(new Event('submit'));
+      });
+
+      // Function to handle user status toggle
+      window.toggleUserStatus = function(userId) {
+        if (!confirm('Are you sure you want to change this user\'s status?')) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'toggleStatus');
+        formData.append('user_id', userId);
+
+        fetch('handlers/user_handler.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert(data.message || 'Error toggling user status');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error toggling user status');
+          });
+      };
+    });
   </script>
 </body>
 
