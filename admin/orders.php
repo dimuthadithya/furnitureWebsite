@@ -215,18 +215,13 @@ try {
           <form id="updateOrderForm">
             <input type="hidden" id="orderId" name="order_id">
             <div class="admin-form-group">
-              <label class="admin-form-label">Order Status</label>
-              <select class="admin-form-control" name="status" id="orderStatus">
+              <label class="admin-form-label">Order Status</label> <select class="admin-form-control" name="status" id="orderStatus">
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped</option>
                 <option value="delivered">Delivered</option>
                 <option value="cancelled">Cancelled</option>
               </select>
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">Notes</label>
-              <textarea class="admin-form-control" rows="3" name="notes" id="orderNotes"></textarea>
             </div>
           </form>
         </div>

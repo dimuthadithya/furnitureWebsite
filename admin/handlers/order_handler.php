@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Validate input
 $order_id = $_POST['order_id'] ?? '';
 $status = $_POST['status'] ?? '';
-$notes = $_POST['notes'] ?? '';
 
 if (!$order_id || !$status) {
     http_response_code(400);
@@ -30,23 +29,15 @@ if (!in_array($status, $validStatuses)) {
 }
 
 try {
-    $conn->beginTransaction();
-
-    // Update order
+    $conn->beginTransaction();    // Update order
     $stmt = $conn->prepare("
         UPDATE orders 
-        SET status = :status,
-            notes = CASE 
-                WHEN :notes = '' THEN notes 
-                ELSE :notes 
-            END,
-            updated_at = CURRENT_TIMESTAMP
+        SET status = :status
         WHERE order_id = :order_id
     ");
 
     $stmt->execute([
         ':status' => $status,
-        ':notes' => $notes,
         ':order_id' => $order_id
     ]);
 
