@@ -1,8 +1,12 @@
 <?php
 require_once 'config/connection.php';
 
+// Get the current category filter
+$category_filter = $_GET['category'] ?? 'all';
+$sort = $_GET['sort'] ?? 'name_asc';
+
 // Fetch featured products from database
-function getFeaturedProducts()
+function getFeaturedProducts($category = 'all', $sort = 'name_asc')
 {
   global $conn;
   try {
@@ -11,16 +15,49 @@ function getFeaturedProducts()
                        (SELECT COUNT(*) FROM reviews WHERE product_id = p.product_id) as review_count
                 FROM products p 
                 LEFT JOIN categories c ON p.category_id = c.category_id 
-                ORDER BY p.name ASC";
+                WHERE 1=1";
+
+    $params = [];
+
+    // Add category filter
+    if ($category !== 'all') {
+      $sql .= " AND LOWER(c.name) = LOWER(:category)";
+      $params[':category'] = $category;
+    }
+
+    // Add sorting
+    $sql .= match ($sort) {
+      'price_asc' => ' ORDER BY p.price ASC',
+      'price_desc' => ' ORDER BY p.price DESC',
+      'rating_desc' => ' ORDER BY avg_rating DESC NULLS LAST',
+      'name_desc' => ' ORDER BY p.name DESC',
+      default => ' ORDER BY p.name ASC'
+    };
+
     $stmt = $conn->prepare($sql);
-    $stmt->execute();
+    $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   } catch (PDOException $e) {
+    error_log("Error in getFeaturedProducts: " . $e->getMessage());
     return [];
   }
 }
 
-$products = getFeaturedProducts();
+// Fetch all categories for the filter buttons
+function getCategories()
+{
+  global $conn;
+  try {
+    $stmt = $conn->query("SELECT name FROM categories ORDER BY name ASC");
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+  } catch (PDOException $e) {
+    error_log("Error fetching categories: " . $e->getMessage());
+    return [];
+  }
+}
+
+$categories = getCategories();
+$products = getFeaturedProducts($category_filter, $sort);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -77,15 +114,30 @@ $products = getFeaturedProducts();
       </p>
     </div>
   </header>
-
   <!-- Filter Section -->
   <section class="filter-section">
-    <div class="container text-center">
-      <button class="filter-btn active">All</button>
-      <button class="filter-btn">Chairs</button>
-      <button class="filter-btn">Sofas</button>
-      <button class="filter-btn">Tables</button>
-      <button class="filter-btn">Decor</button>
+    <div class="container">
+      <form method="GET" class="row g-3 align-items-center justify-content-center">
+        <div class="col-md-8 text-center">
+          <a href="?category=all" class="filter-btn <?php echo $category_filter === 'all' ? 'active' : ''; ?>">All</a>
+          <?php foreach ($categories as $category): ?>
+            <a href="?category=<?php echo urlencode($category); ?>"
+              class="filter-btn <?php echo strtolower($category_filter) === strtolower($category) ? 'active' : ''; ?>">
+              <?php echo htmlspecialchars($category); ?>
+            </a>
+          <?php endforeach; ?>
+        </div>
+        <div class="col-md-4">
+          <select name="sort" class="form-select" onchange="this.form.submit()">
+            <option value="name_asc" <?php echo $sort === 'name_asc' ? 'selected' : ''; ?>>Name (A-Z)</option>
+            <option value="name_desc" <?php echo $sort === 'name_desc' ? 'selected' : ''; ?>>Name (Z-A)</option>
+            <option value="price_asc" <?php echo $sort === 'price_asc' ? 'selected' : ''; ?>>Price (Low to High)</option>
+            <option value="price_desc" <?php echo $sort === 'price_desc' ? 'selected' : ''; ?>>Price (High to Low)</option>
+            <option value="rating_desc" <?php echo $sort === 'rating_desc' ? 'selected' : ''; ?>>Highest Rated</option>
+          </select>
+        </div>
+        <input type="hidden" name="category" value="<?php echo htmlspecialchars($category_filter); ?>">
+      </form>
     </div>
   </section>
   <!-- Featured Products -->
@@ -155,6 +207,24 @@ $products = getFeaturedProducts();
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the current URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentSort = urlParams.get('sort') || 'name_asc';
+
+      // Add click handlers to filter buttons
+      document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          // Update URL with both category and current sort
+          const category = new URL(this.href).searchParams.get('category');
+          window.location.href = `?category=${category}&sort=${currentSort}`;
+        });
+      });
+    });
+  </script>
 </body>
 
 </html>
