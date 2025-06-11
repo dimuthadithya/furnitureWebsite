@@ -2,10 +2,36 @@
 require_once 'includes/auth_check.php';
 require_once '../config/connection.php';
 
+// Initialize filter variables
+$role_filter = $_GET['role'] ?? '';
+$search_term = $_GET['search'] ?? '';
+
 // Fetch users from database
 try {
-  $stmt = $conn->prepare("SELECT user_id, username, email, is_admin, created_at FROM users ORDER BY created_at DESC");
-  $stmt->execute();
+  // Base query
+  $query = "SELECT user_id, username, email, is_admin, created_at FROM users WHERE 1=1";
+  $params = [];
+
+  // Add role filter
+  if ($role_filter) {
+    if ($role_filter === 'admin') {
+      $query .= " AND is_admin = 1";
+    } elseif ($role_filter === 'customer') {
+      $query .= " AND is_admin = 0";
+    }
+  }
+
+  // Add search filter
+  if ($search_term) {
+    $query .= " AND (username LIKE :search OR email LIKE :search)";
+    $params[':search'] = "%$search_term%";
+  }
+
+  // Add order by
+  $query .= " ORDER BY created_at DESC";
+
+  $stmt = $conn->prepare($query);
+  $stmt->execute($params);
   $users = $stmt->fetchAll();
 } catch (PDOException $e) {
   $_SESSION['error'] = "Error fetching users: " . $e->getMessage();
@@ -65,38 +91,35 @@ try {
           data-bs-target="#addUserModal">
           <i class="fas fa-user-plus"></i> Add New User
         </button>
-      </header>
-
-      <!-- User Filters -->
+      </header> <!-- User Filters -->
       <div class="admin-card mb-4">
-        <div class="row g-3">
-          <div class="col-md-3">
-            <select class="admin-form-control">
-              <option value="">Filter by Role</option>
-              <option value="customer">Customer</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <select class="admin-form-control">
-              <option value="">Filter by Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="blocked">Blocked</option>
-            </select>
-          </div>
+        <form method="GET" class="row g-3">
           <div class="col-md-4">
+            <select name="role" class="admin-form-control">
+              <option value="">Filter by Role</option>
+              <option value="customer" <?php echo $role_filter === 'customer' ? 'selected' : ''; ?>>Customer</option>
+              <option value="admin" <?php echo $role_filter === 'admin' ? 'selected' : ''; ?>>Admin</option>
+            </select>
+          </div>
+          <div class="col-md-6">
             <input
               type="text"
+              name="search"
               class="admin-form-control"
-              placeholder="Search Users..." />
+              placeholder="Search Users..."
+              value="<?php echo htmlspecialchars($search_term); ?>" />
           </div>
-          <div class="col-md-2">
-            <button class="admin-btn admin-btn-primary w-100">
+          <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="admin-btn admin-btn-primary flex-grow-1">
               Apply Filters
             </button>
+            <?php if ($role_filter || $search_term): ?>
+              <a href="users.php" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-times"></i>
+              </a>
+            <?php endif; ?>
           </div>
-        </div>
+        </form>
       </div>
 
       <!-- Users Table -->
@@ -128,7 +151,11 @@ try {
                   <td>#<?php echo str_pad($user['user_id'], 3, '0', STR_PAD_LEFT); ?></td>
                   <td><?php echo htmlspecialchars($user['username']); ?></td>
                   <td><?php echo htmlspecialchars($user['email']); ?></td>
-                  <td><?php echo $user['is_admin'] ? 'Admin' : 'Customer'; ?></td>
+                  <td>
+                    <span class="badge bg-<?php echo $user['is_admin'] ? 'primary' : 'secondary'; ?>">
+                      <?php echo $user['is_admin'] ? 'Admin' : 'Customer'; ?>
+                    </span>
+                  </td>
                   <td><?php echo date('F j, Y', strtotime($user['created_at'])); ?></td>
                   <td>
                     <button
