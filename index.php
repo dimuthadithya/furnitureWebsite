@@ -133,47 +133,6 @@
     </div>
   </section>
 
-  <!-- Popular Products -->
-  <section class="popular-products py-5">
-    <div class="container">
-      <h2 class="mb-4">Popular Furniture</h2>
-      <div class="row">
-        <div class="col-md-4">
-          <div class="product-card">
-            <img
-              src="assets/images/chair1.jpg"
-              alt="Modern Chair"
-              class="product-image" />
-            <h3 class="product-title">Modern Chair</h3>
-            <p class="product-price">Rs3000</p>
-            <button class="btn-add-cart">Add to Cart</button>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="product-card">
-            <img
-              src="assets/images/chair2.jpg"
-              alt="Modern Chair"
-              class="product-image" />
-            <h3 class="product-title">Modern Chair</h3>
-            <p class="product-price">Rs3000</p>
-            <button class="btn-add-cart">Add to Cart</button>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="product-card">
-            <img
-              src="assets/images/chair3.jpg"
-              alt="Modern Chair"
-              class="product-image" />
-            <h3 class="product-title">Modern Chair</h3>
-            <p class="product-price">Rs3000</p>
-            <button class="btn-add-cart">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Features -->
   <section class="features-section">
