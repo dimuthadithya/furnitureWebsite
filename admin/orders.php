@@ -94,7 +94,7 @@ try {
       </header>
 
       <?php if ($message): ?>
-        <div class="alert alert-danger"><?php echo htmlspecialchars($message); ?></div>
+        <div class="alert alert-danger"><?php echo htmlspecialchars($message ?? ''); ?></div>
       <?php endif; ?>
 
       <!-- Filter Section -->
@@ -153,11 +153,11 @@ try {
                   <tr>
                     <td>#<?php echo str_pad($order['order_id'], 4, '0', STR_PAD_LEFT); ?></td>
                     <td>
-                      <div><?php echo htmlspecialchars($order['username']); ?></div>
-                      <small class="text-muted"><?php echo htmlspecialchars($order['email']); ?></small>
+                      <div><?php echo htmlspecialchars($order['username'] ?? ''); ?></div>
+                      <small class="text-muted"><?php echo htmlspecialchars($order['email'] ?? ''); ?></small>
                     </td>
                     <td>
-                      <small><?php echo htmlspecialchars($order['products']); ?></small>
+                      <small><?php echo htmlspecialchars($order['products'] ?? ''); ?></small>
                     </td>
                     <td>$<?php echo number_format($order['total_amount'], 2); ?></td>
                     <td><?php echo date('M j, Y', strtotime($order['created_at'])); ?></td>
@@ -176,13 +176,12 @@ try {
                         <?php echo ucfirst($order['status']); ?>
                       </span>
                     </td>
-                    <td>
-                      <small>
-                        <?php echo htmlspecialchars($order['full_name']); ?><br>
-                        <?php echo htmlspecialchars($order['address_line1']); ?><br>
-                        <?php echo htmlspecialchars($order['city']) . ', ' .
-                          htmlspecialchars($order['state']) . ' ' .
-                          htmlspecialchars($order['postal_code']); ?>
+                    <td> <small>
+                        <?php echo htmlspecialchars($order['full_name'] ?? ''); ?><br>
+                        <?php echo htmlspecialchars($order['address_line1'] ?? ''); ?><br>
+                        <?php echo htmlspecialchars($order['city'] ?? '') . ', ' .
+                          htmlspecialchars($order['state'] ?? '') . ' ' .
+                          htmlspecialchars($order['postal_code'] ?? ''); ?>
                       </small>
                     </td>
                     <td>
