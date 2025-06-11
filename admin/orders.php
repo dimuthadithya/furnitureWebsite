@@ -74,33 +74,12 @@ try {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Management - Modern Furniture Store</title>
-
-  <!-- Favicon -->
-  <link
-    rel="apple-touch-icon"
-    sizes="180x180"
-    href="../assets/img/favicon_io/apple-touch-icon.png" />
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="32x32"
-    href="../assets/img/favicon_io/favicon-32x32.png" />
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="16x16"
-    href="../assets/img/favicon_io/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicon_io/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon_io/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon_io/favicon-16x16.png" />
   <link rel="manifest" href="../assets/img/favicon_io/site.webmanifest" />
-
-  <!-- Bootstrap 5 CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet" />
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Custom CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="../assets/css/colors.css" />
   <link rel="stylesheet" href="../assets/css/admin/admin.css" />
 </head>
@@ -109,53 +88,12 @@ try {
   <div class="admin-wrapper">
     <?php include '../includes/admin-sidebar.php'; ?>
 
-    <!-- Main Content -->
     <main class="admin-main">
-      <!-- Header -->
       <header class="admin-header">
         <h1 class="h3 m-0">Order Management</h1>
-        <div>
-          <button class="admin-btn admin-btn-primary btn-sm me-2">
-            <i class="fas fa-file-export"></i> Export Orders
-          </button>
-          <button class="admin-btn admin-btn-success btn-sm">
-            <i class="fas fa-sync"></i> Refresh
-          </button>
-        </div>
       </header>
 
-      <!-- Order Filters -->
-      <div class="admin-card mb-4">
-        <div class="row g-3">
-          <div class="col-md-3">
-            <select class="admin-form-control">
-              <option value="">Filter by Status</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <input
-              type="date"
-              class="admin-form-control"
-              placeholder="Filter by Date" />
-          </div>
-          <div class="col-md-4">
-            <input
-              type="text"
-              class="admin-form-control"
-              placeholder="Search Orders..." />
-          </div>
-          <div class="col-md-2">
-            <button class="admin-btn admin-btn-primary btn-sm w-100">
-              Apply Filters
-            </button>
-          </div>
-        </div>
-      </div> <?php if ($message): ?>
+      <?php if ($message): ?>
         <div class="alert alert-danger"><?php echo htmlspecialchars($message); ?></div>
       <?php endif; ?>
 
@@ -248,17 +186,12 @@ try {
                       </small>
                     </td>
                     <td>
-                      <button
-                        class="admin-btn admin-btn-warning btn-sm update-order-btn"
+                      <button class="admin-btn admin-btn-warning btn-sm update-order-btn"
                         data-bs-toggle="modal"
                         data-bs-target="#updateOrderModal"
                         data-order-id="<?php echo $order['order_id']; ?>"
                         data-current-status="<?php echo $order['status']; ?>">
                         <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="admin-btn admin-btn-primary btn-sm view-order-btn"
-                        data-order-id="<?php echo $order['order_id']; ?>">
-                        <i class="fas fa-eye"></i>
                       </button>
                     </td>
                   </tr>
@@ -270,16 +203,14 @@ try {
       </div>
     </main>
   </div>
+
   <!-- Update Order Modal -->
   <div class="modal fade" id="updateOrderModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Update Order Status</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="updateOrderForm">
@@ -301,10 +232,7 @@ try {
           </form>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="admin-btn admin-btn-secondary"
-            data-bs-dismiss="modal">
+          <button type="button" class="admin-btn admin-btn-secondary" data-bs-dismiss="modal">
             Cancel
           </button>
           <button type="button" class="admin-btn admin-btn-primary" id="updateOrderBtn">
@@ -315,9 +243,8 @@ try {
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Status Update Modal
     document.addEventListener('DOMContentLoaded', function() {
       const updateModal = document.getElementById('updateOrderModal');
       const updateOrderForm = document.getElementById('updateOrderForm');
@@ -332,14 +259,6 @@ try {
           const currentStatus = this.dataset.currentStatus;
           orderIdInput.value = orderId;
           orderStatusSelect.value = currentStatus;
-        });
-      });
-
-      // View button click handlers
-      document.querySelectorAll('.view-order-btn').forEach(button => {
-        button.addEventListener('click', function() {
-          const orderId = this.dataset.orderId;
-          window.location.href = `order-details.php?id=${orderId}`;
         });
       });
 
@@ -364,15 +283,8 @@ try {
             alert('Error updating order status');
           });
       });
-
-      // Handle export
-      document.querySelector('button[data-action="export"]').addEventListener('click', function() {
-        const queryString = window.location.search;
-        window.location.href = `export-orders.php${queryString}`;
-      });
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
