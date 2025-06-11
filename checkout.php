@@ -30,10 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Add shipping cost
         $shipping_cost = 10;
-        $total += $shipping_cost;
-
-        // Handle new address if provided
+        $total += $shipping_cost;        // Get address ID
         if ($_POST['address_option'] === 'new') {
+            // Handle new address
             $stmt = $conn->prepare("
                 INSERT INTO shipping_addresses 
                 (user_id, full_name, address_line1, address_line2, city, state, postal_code, country, phone)
@@ -51,11 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':phone' => $_POST['phone']
             ]);
             $address_id = $conn->lastInsertId();
-        } else {
+        } elseif (isset($_POST['address_id'])) {
+            // Use existing address
             $address_id = $_POST['address_id'];
+        } else {
+            throw new Exception('Please select a shipping address or add a new one.');
         }
 
-        // Handle new payment method if provided
+        // Get payment method ID
         if ($_POST['payment_option'] === 'new') {
             // In a production environment, use proper encryption for card details
             $encrypted_card_number = password_hash($_POST['card_number'], PASSWORD_DEFAULT);
@@ -71,10 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':card_number' => $encrypted_card_number,
                 ':expiry_month' => $_POST['expiry_month'],
                 ':expiry_year' => $_POST['expiry_year']
-            ]);
-            $payment_id = $conn->lastInsertId();
-        } else {
+            ]);            $payment_id = $conn->lastInsertId();
+        } elseif (isset($_POST['payment_method_id'])) {
+            // Use existing payment method
             $payment_id = $_POST['payment_method_id'];
+        } else {
+            throw new Exception('Please select a payment method or add a new one.');
         }
 
         // Create order
@@ -412,15 +416,12 @@ $total = $subtotal + $shipping;
         (function() {
             'use strict';
 
-            // Get form elements
-            const form = document.getElementById('checkout-form');
-            const addressOption = document.querySelector('input[name="address_option"]');
-            const paymentOption = document.querySelector('input[name="payment_option"]');
+            // Get form elements            const form = document.getElementById('checkout-form');
+            const addressOptions = document.querySelectorAll('input[name="address_option"]');
+            const paymentOptions = document.querySelectorAll('input[name="payment_option"]');
             const newAddressForm = document.getElementById('new-address-form');
             const newCardForm = document.getElementById('new-card-form');
-            const existingAddresses = document.querySelectorAll('input[name="address_id"]');
-            const existingPayments = document.querySelectorAll('input[name="payment_method_id"]');
-
+            
             // Form validation
             form.addEventListener('submit', function(event) {
                 if (!form.checkValidity()) {
@@ -428,18 +429,46 @@ $total = $subtotal + $shipping;
                     event.stopPropagation();
                 }
 
+                // Get selected options
+                const selectedAddressOption = document.querySelector('input[name="address_option"]:checked');
+                const selectedPaymentOption = document.querySelector('input[name="payment_option"]:checked');
+
                 // Custom validation for address selection
-                if (addressOption.value === 'existing' && !Array.from(existingAddresses).some(radio => radio.checked)) {
+                if (selectedAddressOption.value === 'existing' && !document.querySelector('input[name="address_id"]:checked')) {
                     event.preventDefault();
                     alert('Please select a shipping address or add a new one.');
                     return;
                 }
 
                 // Custom validation for payment selection
-                if (paymentOption.value === 'existing' && !Array.from(existingPayments).some(radio => radio.checked)) {
+                if (selectedPaymentOption.value === 'existing' && !document.querySelector('input[name="payment_method_id"]:checked')) {
                     event.preventDefault();
                     alert('Please select a payment method or add a new one.');
                     return;
+                }
+
+                // If new address is selected, validate address form
+                if (selectedAddressOption.value === 'new') {
+                    const addressInputs = newAddressForm.querySelectorAll('input[required]');
+                    for (const input of addressInputs) {
+                        if (!input.value) {
+                            event.preventDefault();
+                            input.focus();
+                            return;
+                        }
+                    }
+                }
+
+                // If new payment is selected, validate payment form
+                if (selectedPaymentOption.value === 'new') {
+                    const paymentInputs = newCardForm.querySelectorAll('input[required], select[required]');
+                    for (const input of paymentInputs) {
+                        if (!input.value) {
+                            event.preventDefault();
+                            input.focus();
+                            return;
+                        }
+                    }
                 }
 
                 form.classList.add('was-validated');
