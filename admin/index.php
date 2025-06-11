@@ -28,10 +28,9 @@ try {
         ORDER BY o.created_at DESC 
         LIMIT 5
     ");
-  $recentOrders = $stmt->fetchAll();
-  // Low Stock Products (less than 5 items)
+  $recentOrders = $stmt->fetchAll();  // Low Stock Products (less than 5 items)
   $stmt = $conn->query("
-        SELECT product_id, name, stock_quantity 
+        SELECT product_id, name as product_name, stock_quantity 
         FROM products 
         WHERE stock_quantity < 5 
         ORDER BY stock_quantity ASC 
