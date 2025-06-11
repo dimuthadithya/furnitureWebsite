@@ -1,5 +1,71 @@
 <?php
 require_once 'includes/auth_check.php';
+require_once '../config/connection.php';
+
+// Initialize variables
+$message = '';
+$orders = [];
+$filtered_status = $_GET['status'] ?? '';
+$search_term = $_GET['search'] ?? '';
+$date_filter = $_GET['date'] ?? '';
+
+try {
+  // Prepare base query
+  $query = "
+        SELECT 
+            o.*,
+            u.username,
+            u.email,
+            sa.full_name,
+            sa.address_line1,
+            sa.city,
+            sa.state,
+            sa.postal_code,
+            GROUP_CONCAT(
+                CONCAT(p.name, ' (', oi.quantity, ')')
+                SEPARATOR ', '
+            ) as products
+        FROM orders o
+        LEFT JOIN users u ON o.user_id = u.user_id
+        LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.address_id
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        LEFT JOIN products p ON oi.product_id = p.product_id
+        WHERE 1=1
+    ";
+
+  $params = [];
+
+  // Add filters
+  if ($filtered_status) {
+    $query .= " AND o.status = :status";
+    $params[':status'] = $filtered_status;
+  }
+
+  if ($search_term) {
+    $query .= " AND (
+            u.username LIKE :search 
+            OR u.email LIKE :search
+            OR sa.full_name LIKE :search
+            OR o.order_id LIKE :search
+        )";
+    $params[':search'] = "%$search_term%";
+  }
+
+  if ($date_filter) {
+    $query .= " AND DATE(o.created_at) = :date";
+    $params[':date'] = $date_filter;
+  }
+
+  // Group and order
+  $query .= " GROUP BY o.order_id ORDER BY o.created_at DESC";
+
+  // Prepare and execute query
+  $stmt = $conn->prepare($query);
+  $stmt->execute($params);
+  $orders = $stmt->fetchAll();
+} catch (PDOException $e) {
+  $message = "Error fetching orders: " . $e->getMessage();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,6 +155,38 @@ require_once 'includes/auth_check.php';
             </button>
           </div>
         </div>
+      </div> <?php if ($message): ?>
+        <div class="alert alert-danger"><?php echo htmlspecialchars($message); ?></div>
+      <?php endif; ?>
+
+      <!-- Filter Section -->
+      <div class="admin-card mb-4">
+        <form method="GET" class="row g-3">
+          <div class="col-md-3">
+            <select name="status" class="form-control" onchange="this.form.submit()">
+              <option value="">Filter by Status</option>
+              <option value="pending" <?php echo $filtered_status === 'pending' ? 'selected' : ''; ?>>Pending</option>
+              <option value="processing" <?php echo $filtered_status === 'processing' ? 'selected' : ''; ?>>Processing</option>
+              <option value="shipped" <?php echo $filtered_status === 'shipped' ? 'selected' : ''; ?>>Shipped</option>
+              <option value="delivered" <?php echo $filtered_status === 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+              <option value="cancelled" <?php echo $filtered_status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <input type="date" name="date" class="form-control" value="<?php echo $date_filter; ?>" onchange="this.form.submit()">
+          </div>
+          <div class="col-md-4">
+            <div class="input-group">
+              <input type="text" name="search" class="form-control" placeholder="Search orders..." value="<?php echo htmlspecialchars($search_term); ?>">
+              <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+          </div>
+          <?php if ($filtered_status || $search_term || $date_filter): ?>
+            <div class="col-md-2">
+              <a href="orders.php" class="btn btn-secondary w-100">Clear Filters</a>
+            </div>
+          <?php endif; ?>
+        </form>
       </div>
 
       <!-- Orders Table -->
@@ -103,67 +201,75 @@ require_once 'includes/auth_check.php';
                 <th>Total</th>
                 <th>Date</th>
                 <th>Status</th>
+                <th>Shipping Address</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>#1234</td>
-                <td>
-                  <div>John Doe</div>
-                  <small class="text-muted">john@example.com</small>
-                </td>
-                <td>
-                  <div>Modern Sofa</div>
-                  <small class="text-muted">Qty: 1</small>
-                </td>
-                <td>$899</td>
-                <td>June 8, 2025</td>
-                <td><span class="badge bg-success">Delivered</span></td>
-                <td>
-                  <button
-                    class="admin-btn admin-btn-warning btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#updateOrderModal">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="admin-btn admin-btn-primary btn-sm">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>#1235</td>
-                <td>
-                  <div>Jane Smith</div>
-                  <small class="text-muted">jane@example.com</small>
-                </td>
-                <td>
-                  <div>Dining Set</div>
-                  <small class="text-muted">Qty: 1</small>
-                </td>
-                <td>$1,299</td>
-                <td>June 9, 2025</td>
-                <td><span class="badge bg-warning">Processing</span></td>
-                <td>
-                  <button
-                    class="admin-btn admin-btn-warning btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#updateOrderModal">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="admin-btn admin-btn-primary btn-sm">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </td>
-              </tr>
+              <?php if (empty($orders)): ?>
+                <tr>
+                  <td colspan="8" class="text-center">No orders found</td>
+                </tr>
+              <?php else: ?>
+                <?php foreach ($orders as $order): ?>
+                  <tr>
+                    <td>#<?php echo str_pad($order['order_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                    <td>
+                      <div><?php echo htmlspecialchars($order['username']); ?></div>
+                      <small class="text-muted"><?php echo htmlspecialchars($order['email']); ?></small>
+                    </td>
+                    <td>
+                      <small><?php echo htmlspecialchars($order['products']); ?></small>
+                    </td>
+                    <td>$<?php echo number_format($order['total_amount'], 2); ?></td>
+                    <td><?php echo date('M j, Y', strtotime($order['created_at'])); ?></td>
+                    <td>
+                      <?php
+                      $statusClass = match ($order['status']) {
+                        'completed', 'delivered' => 'success',
+                        'pending' => 'warning',
+                        'processing' => 'info',
+                        'shipped' => 'primary',
+                        'cancelled' => 'danger',
+                        default => 'secondary'
+                      };
+                      ?>
+                      <span class="badge bg-<?php echo $statusClass; ?>">
+                        <?php echo ucfirst($order['status']); ?>
+                      </span>
+                    </td>
+                    <td>
+                      <small>
+                        <?php echo htmlspecialchars($order['full_name']); ?><br>
+                        <?php echo htmlspecialchars($order['address_line1']); ?><br>
+                        <?php echo htmlspecialchars($order['city']) . ', ' .
+                          htmlspecialchars($order['state']) . ' ' .
+                          htmlspecialchars($order['postal_code']); ?>
+                      </small>
+                    </td>
+                    <td>
+                      <button
+                        class="admin-btn admin-btn-warning btn-sm update-order-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#updateOrderModal"
+                        data-order-id="<?php echo $order['order_id']; ?>"
+                        data-current-status="<?php echo $order['status']; ?>">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="admin-btn admin-btn-primary btn-sm view-order-btn"
+                        data-order-id="<?php echo $order['order_id']; ?>">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
       </div>
     </main>
   </div>
-
   <!-- Update Order Modal -->
   <div class="modal fade" id="updateOrderModal" tabindex="-1">
     <div class="modal-dialog">
@@ -176,10 +282,11 @@ require_once 'includes/auth_check.php';
             data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form>
+          <form id="updateOrderForm">
+            <input type="hidden" id="orderId" name="order_id">
             <div class="admin-form-group">
               <label class="admin-form-label">Order Status</label>
-              <select class="admin-form-control">
+              <select class="admin-form-control" name="status" id="orderStatus">
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped</option>
@@ -189,7 +296,7 @@ require_once 'includes/auth_check.php';
             </div>
             <div class="admin-form-group">
               <label class="admin-form-label">Notes</label>
-              <textarea class="admin-form-control" rows="3"></textarea>
+              <textarea class="admin-form-control" rows="3" name="notes" id="orderNotes"></textarea>
             </div>
           </form>
         </div>
@@ -200,7 +307,7 @@ require_once 'includes/auth_check.php';
             data-bs-dismiss="modal">
             Cancel
           </button>
-          <button type="button" class="admin-btn admin-btn-primary">
+          <button type="button" class="admin-btn admin-btn-primary" id="updateOrderBtn">
             Update Status
           </button>
         </div>
@@ -209,6 +316,62 @@ require_once 'includes/auth_check.php';
   </div>
 
   <!-- Bootstrap JS -->
+  <script>
+    // Status Update Modal
+    document.addEventListener('DOMContentLoaded', function() {
+      const updateModal = document.getElementById('updateOrderModal');
+      const updateOrderForm = document.getElementById('updateOrderForm');
+      const orderIdInput = document.getElementById('orderId');
+      const orderStatusSelect = document.getElementById('orderStatus');
+      const updateOrderBtn = document.getElementById('updateOrderBtn');
+
+      // Update button click handlers
+      document.querySelectorAll('.update-order-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.dataset.orderId;
+          const currentStatus = this.dataset.currentStatus;
+          orderIdInput.value = orderId;
+          orderStatusSelect.value = currentStatus;
+        });
+      });
+
+      // View button click handlers
+      document.querySelectorAll('.view-order-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.dataset.orderId;
+          window.location.href = `order-details.php?id=${orderId}`;
+        });
+      });
+
+      // Update order status
+      updateOrderBtn.addEventListener('click', function() {
+        const formData = new FormData(updateOrderForm);
+
+        fetch('handlers/order_handler.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert(data.message || 'Error updating order status');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating order status');
+          });
+      });
+
+      // Handle export
+      document.querySelector('button[data-action="export"]').addEventListener('click', function() {
+        const queryString = window.location.search;
+        window.location.href = `export-orders.php${queryString}`;
+      });
+    });
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
