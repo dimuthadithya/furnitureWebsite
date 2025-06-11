@@ -73,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':card_number' => $encrypted_card_number,
                 ':expiry_month' => $_POST['expiry_month'],
                 ':expiry_year' => $_POST['expiry_year']
-            ]);            $payment_id = $conn->lastInsertId();
+            ]);
+            $payment_id = $conn->lastInsertId();
         } elseif (isset($_POST['payment_method_id'])) {
             // Use existing payment method
             $payment_id = $_POST['payment_method_id'];
@@ -421,7 +422,7 @@ $total = $subtotal + $shipping;
             const paymentOptions = document.querySelectorAll('input[name="payment_option"]');
             const newAddressForm = document.getElementById('new-address-form');
             const newCardForm = document.getElementById('new-card-form');
-            
+
             // Form validation
             form.addEventListener('submit', function(event) {
                 if (!form.checkValidity()) {
