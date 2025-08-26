@@ -1,5 +1,7 @@
 # Furniture Website
 
+![Furniture Website Screenshot](assets/img/image.png)
+
 This is a PHP-based e-commerce website for selling furniture. The project includes user authentication, product browsing, cart management, reviews, and an admin dashboard for managing products, categories, orders, and users.
 
 ## Features
